@@ -7,10 +7,15 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "test_session")
@@ -27,8 +32,25 @@ public class TestSession extends BaseModel {
 
     @Column(name = "score")
     private double score;
+    
+	@OneToOne
+	@JoinColumn(name="student_id")
+	private Student student;
+	
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name="test_id")
+    private Test test;
 
-    public List<Progress> getProgresses() {
+    public Student getStudent() {
+		return student;
+	}
+
+	public void setStudent(Student student) {
+		this.student = student;
+	}
+
+	public List<Progress> getProgresses() {
         return progresses;
     }
 

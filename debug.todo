@@ -1,0 +1,90 @@
+ ✔ Problem: postgres not installing, because of accessing snakeoil certificate issue @done (16-03-01 20:39)
+
+   1. Approach https://wiki.postgresql.org/wiki/May_2015_Fsync_Permissions_Bug
+   2 realized it was a snake oil certificate issue, ran the following command, worked:  `sudo make-ssl-cert generate-default-snakeoil --force-overwrite`
+
+ ✔ Problem: `psql` would not login  @done (16-03-01 20:41)
+   solution: http://stackoverflow.com/questions/9539001/login-to-postgresql-login-failed
+
+   created password jiesetopperf
+
+   ✔ Backing up and restore:  @done (16-03-01 20:45)
+   ```
+   Backup:  $ pg_dump -U {user-name} {source_db} -f {dumpfilename.sql}
+
+   Restore: $ psql -U {user-name} -d {desintation_db}-f {dumpfilename.sql}
+   ```
+   ✔ Java dose not support lambda expression @done (16-03-05 11:39)
+   http://stackoverflow.com/questions/15556583/eclipse-set-source-level
+   Have to also update JRE: http://askubuntu.com/questions/183867/how-do-i-update-oracle-java-7-jdk-and-jre
+   ```
+   sudo add-apt-repository ppa:webupd8team/java
+   sudo apt-get update
+   sudo apt-get install oracle-java8-installer
+   ```
+     ✔ TODO: have to add JRE to eclipse's set up, so that project can run properly error seen: com/renison/App : Unsupported major.minor version 52.0 @done (16-03-05 11:59)
+       Notes: project -> properties -> library -> make sure JRE for referenced library is 1.8 <==== WRONG!!!, this caused this problem
+       Changed library environment back to 1.7, solved the issue
+
+     ✔ finding jre path: http://stackoverflow.com/questions/16931327/where-is-the-java-sdk-folder-in-my-computer-ubuntu-12-04 @done (16-03-05 11:38)
+       window -> preferences -> installed JRE -> add -> choose the 1.8 JRE install path
+       IMPORTANT also, make sure that in preferences -> execution environment, even for JAVA SE 1.7 choose JRE 1.8 
+     ✔ Stopping tomcat server that started in last eclipse session (tomcat started in eclipse before, but eclipse quit without shutting it down) @done (16-03-05 11:58)
+       `ps -aux | grep java
+        kill the first process that has your project name in it
+
+
+ ☐ Making student login
+   ☐ Linking Test to many TestSessions
+   ☐ TestSession has many progress --> progress does not need separate resource, need to be embedded within TestSession
+     ✔ Making TestSession Repo @done (16-03-11 11:05)
+     ☐ Making questionResponses repo
+       ☐ commented out testSession reference in questionResponse
+         ☐ Commented out questionResponse reference in responseContent
+     ✔ Commenting out TestSession `getProgress()` hope Spring does not take private stuff as reference to resource, and also hibernate is smart enough to still add progress to TestSession if I do `testSession.addProgress(new Progress())`  @done (16-03-11 11:44)
+       It indeed has an error ....
+       Solution: ONLY expose the setter!
+     ☐ Testing out creating ResponseContent
+
+
+ ✔ When creating `QuestionResponse` I posted  @done (16-03-11 11:44)
+     ```
+     {
+        "testSession":"/1000",
+        "question":"/1260"
+     }
+     ```
+     but the creation is unsuccessful, this is because, I dont have a repository named "Question". And what Spring does is to call Jackson to deserialize question by id, which must be an integer type
+     however, this failed as well
+     ```
+     {
+        "testSession":"/1000",
+        "question":1260
+     }
+     ```
+     I think the `Id` that Jackson refers to is different from what hibernate refers to (Jackson does not honor id as in DB, it creates its own Id?)
+
+
+
+ ☐ Problem creating questionResponse
+   ```
+     {
+        "testSession":"/1000",
+        "question":"/1260",
+        "responseContents":[
+            {
+                "answerResponded":1000,
+                "text":"Hello World!"
+            }]
+     }
+   ```
+
+   Error Message: 
+   ```
+   Unresolved forward references for: Object id [1000] (for com.renison.model.Answer) 
+   ```
+   Two approches: Use controller to handle @POST to questionResponses
+
+   Continue research: When I post a json with reference to another DB entity, is there a way to automatically resolve that? 
+     Possiblity: `Answer answerResponded = Session.get(request.getAnswerRespondedId()), responseContents.get(0).setAnswerResponded(answerResponded);`
+       Perhaps deserialize using only ID http://stackoverflow.com/questions/31274220/jackson-deserialization-by-only-providing-an-id-as-a-string

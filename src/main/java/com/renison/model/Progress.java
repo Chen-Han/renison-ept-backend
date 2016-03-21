@@ -55,12 +55,12 @@ public class Progress extends BaseModel {
         this.endAt = endAt;
     }
 
-    public TestSession getTestSession() {
-        return testSession;
-    }
+    // public TestSession getTestSession() {
+    //     return testSession;
+    // }
 
-    public void setTestSession(TestSession testSession) {
-        this.testSession = testSession;
-    }
+    // public void setTestSession(TestSession testSession) {
+    //     this.testSession = testSession;
+    // }
 
 }
