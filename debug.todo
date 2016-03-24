@@ -1,3 +1,4 @@
+6cae11bb25dbbe693eb379fe05b92865b335d62c
  ✔ Problem: postgres not installing, because of accessing snakeoil certificate issue @done (16-03-01 20:39)
 
    1. Approach https://wiki.postgresql.org/wiki/May_2015_Fsync_Permissions_Bug

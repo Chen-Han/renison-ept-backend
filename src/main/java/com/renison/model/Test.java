@@ -1,6 +1,7 @@
 package com.renison.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,7 +37,15 @@ public class Test extends BaseModel {
 	private boolean active = false;
 
 	@OneToMany(mappedBy = "test")
-	private Set<TestSession> testSessions;
+	private Set<TestSession> testSessions = new HashSet<>();
+
+	public Set<TestSession> getTestSessions() {
+		return testSessions;
+	}
+
+	public void setTestSessions(Set<TestSession> testSessions) {
+		this.testSessions = testSessions;
+	}
 
 	public String getName() {
 		return name;
