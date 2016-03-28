@@ -1,4 +1,4 @@
-package com.renison.api;
+package com.renison.controller;
 
 import java.util.Map;
 

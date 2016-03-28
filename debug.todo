@@ -89,3 +89,34 @@
    Continue research: When I post a json with reference to another DB entity, is there a way to automatically resolve that? 
      Possiblity: `Answer answerResponded = Session.get(request.getAnswerRespondedId()), responseContents.get(0).setAnswerResponded(answerResponded);`
        Perhaps deserialize using only ID http://stackoverflow.com/questions/31274220/jackson-deserialization-by-only-providing-an-id-as-a-string
+
+
+
+ ✔ Problem using @Where clause in querying/filtering collection  @done (16-03-27 20:52)
+Problem: TestSession has many `progress` need to query progress whose `end_at` = NULL 
+Solution: "end_at = NULL" did not work, but "end_at is NULL" worked 
+
+
+
+ ✔ Problem serializing object field because hibernate lazily fetches objects @done (16-03-27 20:52)
+@Tag: hibernate, spring, jackson
+
+Hint: download jackson hibernate 4 module, http://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-hibernate4/2.7.3 
+
+follow this http://stackoverflow.com/questions/21708339/avoid-jackson-serialization-on-non-fetched-lazy-objects
+
+Solution: adding the following to `ApplicationConfig` worked: 
+  Note: The second answer from the above link gave this, not the most upvoted one
+  ```
+  @Bean
+  public Jackson2ObjectMapperBuilder configureObjectMapper() {
+      return new Jackson2ObjectMapperBuilder()
+              .modulesToInstall(Hibernate4Module.class);
+  }
+  ```
+
+
+ ☐ Problem, some fields like `answer` should not be serialized into view
+   Hint: http://stackoverflow.com/questions/7854030/configuring-objectmapper-in-spring
+     Read up on jackson json view
+     ☐ just add @JsonView(Views.Public.class) to all exposed fields,

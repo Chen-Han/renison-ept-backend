@@ -23,7 +23,7 @@ public class Progress extends BaseModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date startAt;
 
-    @Column(name = "end_at", columnDefinition = "timestamp with time zone", nullable = false)
+    @Column(name = "end_at", columnDefinition = "timestamp with time zone")
     @Temporal(TemporalType.TIMESTAMP)
     private Date endAt;
 

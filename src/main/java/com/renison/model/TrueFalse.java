@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.renison.jackson.View;
 
 @Entity
 @DiscriminatorValue(value = ComponentType.Value.TRUE_FALSE)
@@ -15,6 +17,7 @@ public class TrueFalse extends Question {
 
     @Column(name = "answer", nullable = false)
     @NotNull
+    @JsonView(View.Admin.class)
     private boolean answer;
 
     public boolean isAnswer() {

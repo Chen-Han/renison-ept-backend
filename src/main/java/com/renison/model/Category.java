@@ -24,6 +24,7 @@ public class Category extends BaseModel {
 
     @OneToMany(mappedBy = "category")
     @Cascade({ CascadeType.PERSIST, CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+    // this field is not serialized by Jackson http://stackoverflow.com/questions/21708339/avoid-jackson-serialization-on-non-fetched-lazy-objects 
     private List<TestComponent> testComponents = new ArrayList<TestComponent>();
 
     @Column(name = "timeAllowed")
