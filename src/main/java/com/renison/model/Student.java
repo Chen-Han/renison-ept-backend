@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.renison.jackson.View;
 
 @Entity
 @Table(name = "student")
@@ -16,21 +18,29 @@ public class Student extends BaseModel {
     }
 
     @Column(name = "first_name")
+    @JsonView(View.Public.class)
     private String firstName;
     @Column(name = "last_name")
+    @JsonView(View.Public.class)
     private String lastName;
     @Column(name = "student_id")
+    @JsonView(View.Public.class)
     private String studentId;
     @Column(name = "gender")
+    @JsonView(View.Public.class)
     private Gender gender;
     @Column(name = "email")
+    @JsonView(View.Public.class)
     private String email;
     @Column(name = "date_of_birth")
+    @JsonView(View.Public.class)
     @Temporal(TemporalType.DATE) // have to put it to avoid `trailing junk on timestamp` error
     private Date dateOfBirth;
     @Column(name = "university")
+    @JsonView(View.Public.class)
     private String university;
     @Column(name = "currentMajor")
+    @JsonView(View.Public.class)
     private String currentMajor;
 
     public String getFirstName() {

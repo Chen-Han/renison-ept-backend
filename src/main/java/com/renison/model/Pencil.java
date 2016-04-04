@@ -7,7 +7,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.renison.jackson.View;
 
 @Entity
 @Table(name = "pencil")
@@ -19,11 +21,13 @@ public class Pencil extends BaseModel {
     }
 
     @ManyToOne
+    @JsonView(View.Public.class)
     @JoinColumn(name = "test_taker_id")
     @JsonBackReference("testTaker_pencil")
     private TestTaker testTaker;
 
     @Column(name = "pencil_type")
+    @JsonView(View.Public.class)
     private PencilType pencilType;
 
     public TestTaker getTestTaker() {

@@ -13,6 +13,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.renison.jackson.View;
 
 @Entity
 // for all child table, info in child and parent are retrieved via a `join` statement
@@ -22,15 +24,18 @@ import org.hibernate.annotations.CascadeType;
 public abstract class Question extends TestComponent {
 
     @Column(name = "content")
+    @JsonView(View.Public.class)
     private String content;
 
     @Transient
     public static final boolean scorable = false; //whether question can be scored
 
     @Column(name = "ordering")
+    @JsonView(View.Public.class)
     private int ordering;
 
     @OneToMany
+    @JsonView(View.Public.class)
     @JoinTable(name = "question_answer", joinColumns = {
             @JoinColumn(name = "question_id", referencedColumnName = "id", nullable = false) }, inverseJoinColumns = {
                     @JoinColumn(name = "answer_id", referencedColumnName = "id", nullable = false) })

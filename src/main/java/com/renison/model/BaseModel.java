@@ -12,8 +12,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.gson.annotations.Expose;
+import com.renison.jackson.View;
 import com.renison.listener.BaseModelListener;
 
 @MappedSuperclass
@@ -23,6 +25,7 @@ public abstract class BaseModel {
 
     @Id
     @Column(name = "id")
+    @JsonView(View.Public.class)
     @GenericGenerator(name = "POOLED_LO_ID_GENERATOR", strategy = "enhanced-sequence", parameters = {
             @org.hibernate.annotations.Parameter(name = "prefer_sequence_per_entity", value = "true"),
             @org.hibernate.annotations.Parameter(name = "optimizer", value = "pooled-lo"),
@@ -34,10 +37,12 @@ public abstract class BaseModel {
     private Long id;
 
     @Column(name = "create_timestamp", columnDefinition = "timestamp with time zone", nullable = false, updatable = false, insertable = true)
+    @JsonView(View.Public.class)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createTimestamp;
 
     @Column(name = "update_timestamp", columnDefinition = "timestamp with time zone", nullable = false)
+    @JsonView(View.Public.class)
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateTimestamp;
 

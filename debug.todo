@@ -120,3 +120,8 @@ Solution: adding the following to `ApplicationConfig` worked:
    Hint: http://stackoverflow.com/questions/7854030/configuring-objectmapper-in-spring
      Read up on jackson json view
      ☐ just add @JsonView(Views.Public.class) to all exposed fields,
+     ☐ Wait... this might be a security question, rather than which view to return 
+       Hint: 
+       CRUD control security http://stackoverflow.com/questions/26643036/how-do-i-implement-fine-grained-access-control-in-spring-data-rest
+       filtering json fields: http://stackoverflow.com/questions/17276081/spring-3-2-filtering-jackson-json-output-based-on-spring-security-role
+       CRUD control security: http://stackoverflow.com/questions/29688195/repository-access-control-in-spring-data-rest-based-off-user-princpal?rq=1

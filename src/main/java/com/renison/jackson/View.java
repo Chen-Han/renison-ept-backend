@@ -1,9 +1,13 @@
 package com.renison.jackson;
 
 public class View {
-    public static interface Admin {
+    public static interface Public {
+
     }
 
-    public static interface Student {
+    public static interface Admin extends Public {
+    }
+
+    public static interface Student extends Public {
     }
 }

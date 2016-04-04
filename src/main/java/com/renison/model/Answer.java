@@ -13,6 +13,7 @@ import com.renison.jackson.View;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Answer extends BaseModel {
     @Column(name = "content", nullable = false)
+    @JsonView(View.Public.class)
     private String content;
 
     @Column(name = "is_correct", nullable = false)

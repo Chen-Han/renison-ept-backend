@@ -17,7 +17,9 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.renison.jackson.View;
 
 @Entity
 @Table(name = "test_component")
@@ -35,19 +37,23 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public abstract class TestComponent extends BaseModel {
 
     @Column(name = "component_type", updatable = false, insertable = false) //without this hibernate will try to generate sql like insert (type,type ...) which wouldn't run
+    @JsonView(View.Public.class)
     @Enumerated(EnumType.STRING)
     private ComponentType componentType;
 
     @Column(name = "ordering")
+    @JsonView(View.Public.class)
     private int ordering;
 
     @ManyToOne
+    @JsonView(View.Public.class)
     @NotNull
     @JoinColumn(name = "test_id", nullable = false)
     @JsonBackReference("test")
     private Test test;
 
     @ManyToOne
+    @JsonView(View.Public.class)
     @NotNull
     @JoinColumn(name = "category_id", nullable = false)
     @JsonBackReference("category")

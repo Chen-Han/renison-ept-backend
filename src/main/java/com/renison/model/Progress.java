@@ -10,26 +10,41 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.renison.jackson.View;
 
 @Entity
 @Table(name = "progress")
 public class Progress extends BaseModel {
     @OneToOne
+    @JsonView(View.Public.class)
     @JoinColumn(name = "category_id", nullable = false)
     @NotNull
     private Category category;
 
     @Column(name = "start_at", columnDefinition = "timestamp with time zone", nullable = false)
+    @JsonView(View.Public.class)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date startAt;
+    private Date startAt = new Date(); // defaults to now
 
     @Column(name = "end_at", columnDefinition = "timestamp with time zone")
+    @JsonView(View.Public.class)
     @Temporal(TemporalType.TIMESTAMP)
     private Date endAt;
 
     @ManyToOne
+    @JsonView(View.Public.class)
     @JoinColumn(name = "test_session_id")
     private TestSession testSession;
+
+    public Progress(TestSession testSession, Category category) {
+        setTestSession(testSession);
+        setCategory(category);
+    }
+
+    public Progress() {
+
+    }
 
     public Category getCategory() {
         return category;
@@ -55,12 +70,12 @@ public class Progress extends BaseModel {
         this.endAt = endAt;
     }
 
-    // public TestSession getTestSession() {
-    //     return testSession;
-    // }
+    public TestSession getTestSession() {
+        return testSession;
+    }
 
-    // public void setTestSession(TestSession testSession) {
-    //     this.testSession = testSession;
-    // }
+    public void setTestSession(TestSession testSession) {
+        this.testSession = testSession;
+    }
 
 }

@@ -5,6 +5,8 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.renison.jackson.View;
 
 @Entity
 @Table(name = "html_component")
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @JsonTypeName(ComponentType.Value.HTML)
 public class HtmlComponent extends TestComponent {
     @Column(name = "content")
+    @JsonView(View.Public.class)
     private String content;
 
     public String getContent() {

@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -17,10 +18,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
+import com.renison.jackson.JsonEptViewAnnotationIntrospector;
 
 @Configurable
 @Configuration
@@ -108,16 +107,20 @@ public class ApplicationConfig {
     }
 
     @Bean
+    @Primary
     public Jackson2ObjectMapperBuilder configureObjectMapper() {
         return new Jackson2ObjectMapperBuilder()
-                .modulesToInstall(Hibernate4Module.class);
+                .modulesToInstall(Hibernate4Module.class)
+                .annotationIntrospector(new JsonEptViewAnnotationIntrospector());
     }
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);// include all fields by default
-        return mapper;
-    }
+    //
+    //    @Bean
+    //    public ObjectMapper objectMapper() {
+    //        ObjectMapper mapper = new ObjectMapper();
+    //        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    //        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);// include all fields by default
+    //        AnnotationIntrospector introspector = new JsonEptViewAnnotationIntrospector();
+    //        mapper.setAnnotationIntrospector(introspector);
+    //        return mapper;
+    //    }
 }

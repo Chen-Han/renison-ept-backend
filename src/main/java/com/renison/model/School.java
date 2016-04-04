@@ -6,7 +6,9 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.renison.jackson.View;
 
 @Entity
 @Table(name = "school")
@@ -14,8 +16,10 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class School extends BaseModel {
 
     @Column(name = "name")
+    @JsonView(View.Public.class)
     private String name;
     @OneToMany(mappedBy = "school")
+    @JsonView(View.Public.class)
     //    @JsonManagedReference
     private Set<TestTaker> testTakers;
 

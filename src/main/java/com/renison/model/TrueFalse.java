@@ -1,10 +1,12 @@
 package com.renison.model;
 
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.View;
@@ -26,5 +28,17 @@ public class TrueFalse extends Question {
 
     public void setAnswer(boolean answer) {
         this.answer = answer;
+    }
+
+    @Override
+    @JsonIgnore
+    public void setAnswers(List<Answer> answers) {
+
+    }
+
+    @Override
+    @JsonIgnore
+    public List<Answer> getAnswers() {
+        return null;
     }
 }
