@@ -20,11 +20,11 @@
             <value>jdbc:postgresql://localhost:5432/ept</value>
         </property>
         <property name="username">
-            <value>hanchen</value>
+            <value>han</value>
         </property>
-        <property name="password">
-            <value></value>
-        </property>
+        <!--<property name="password">
+            <value>chan</value>
+        </property>-->
     </bean>
   
     <bean id="entityManagerFactory"
