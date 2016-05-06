@@ -1,12 +1,16 @@
 package com.renison.controller;
 
 import java.util.Date;
-import java.util.List;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.auth.JwtUtil;
 import com.renison.auth.StudentTokenPayload;
@@ -20,79 +24,95 @@ import com.renison.model.TestSession;
 @RestController
 @RequestMapping(value = "/proctor")
 public class ProctorController {
-    private static JwtUtil jwtUtil = new JwtUtil();
+	private static JwtUtil jwtUtil = new JwtUtil();
 
-    @Autowired
-    TestSessionController testSessionController;
+	@Autowired
+	private TestSessionController testSessionController;
 
-    @RequestMapping(value = "/currentCategory", method = RequestMethod.GET)
-    @JsonView(View.Student.class)
-    public Category currentCategory(@RequestHeader("ept-login-token") String eptLoginToken) {
-        StudentTokenPayload payload = jwtUtil.verifyLoginToken(eptLoginToken, StudentTokenPayload.class); //TODO this needs to be refactored to auth middleware
+	@Autowired
+	private SessionFactory sessionFactory;
 
-        TestSession testSession = testSessionController.get(payload.getTestSessionId());
+	@RequestMapping(value = "/currentCategory", method = RequestMethod.GET)
+	@JsonView(View.Student.class)
+	public Category currentCategory(@RequestHeader("ept-login-token") String eptLoginToken) {
+		// TODO refactor
+		StudentTokenPayload payload = jwtUtil.verifyLoginToken(eptLoginToken, StudentTokenPayload.class);
+		TestSession testSession = testSessionController.get(payload.getTestSessionId());
 
-        Progress progress = testSession.getLatestProgress();
+		Progress progress = testSession.getLatestProgress();
+		return withAllFields(progress.getCategory());
+	}
 
-        Category category = progress.getCategory();
-        category.setTestComponents(category.getTestComponents()); // hacky way to get around Jackson ignoring lazily fetched fields
-        return category;
-    }
+	@RequestMapping(value = "/nextCategory", method = RequestMethod.POST)
+	@JsonView(View.Student.class)
+	@Transactional
+	public Category nextCategory(@RequestHeader("ept-login-token") String eptLoginToken) {
+		// TODO refactor to auth middleware
+		StudentTokenPayload payload = jwtUtil.verifyLoginToken(eptLoginToken, StudentTokenPayload.class);
+		Session session = sessionFactory.getCurrentSession();
+		TestSession testSession = session.get(TestSession.class, payload.getTestSessionId());
+		Progress progress = toNextProgress(testSession);
+		session.flush();
+		if (progress == null) { // no next progress anymore, test reaches end
+			return null;
+		} else {
+			return withAllFields(progress.getCategory());
+		}
+	}
 
-    @RequestMapping(value = "/nextCategory", method = RequestMethod.POST)
-    @JsonView(View.Student.class)
-    public Category nextCategory(@RequestHeader("ept-login-token") String eptLoginToken) {
-        StudentTokenPayload payload = jwtUtil.verifyLoginToken(eptLoginToken, StudentTokenPayload.class); //TODO this needs to be refactored to auth middleware
-        TestSession testSession = testSessionController.get(payload.getTestSessionId());
-        Progress latestProgress = testSession.getLatestProgress();
-        Test test = testSession.getTest();
+	@Transactional
+	private Progress toNextProgress(TestSession testSession) {
+		// if test ended, throw exception
+		checkTestSubmitted(testSession);
+		// if no progress, start a new one
+		Progress progress = testSession.getLatestProgress();
+		if (progress == null) {
+			Category category = testSession.getTest().getFirstCategory();
+			if (category == null) {
+				throw new ProctorException(56056772123l, "Test is empty", "test is empty");
+			}
+			progress = new Progress(testSession, category);
+			testSession.addProgress(progress);
+			sessionFactory.getCurrentSession().saveOrUpdate(testSession);
+			return progress;
+		}
+		endCurrentProgress(progress);
+		Test test = testSession.getTest();
+		Category nextCategory = test.nextCategoryTo(progress.getCategory());
+		if (nextCategory == null) {
+			return null;// it was already the last category, cannot go to the
+						// next one
+		}
+		Progress nextProgress = new Progress(testSession, nextCategory);
+		testSession.addProgress(nextProgress);
+		// sessionFactory.getCurrentSession().save(testSession);
+		return nextProgress;
+	}
 
-        if (testSession.getTestSubmitted()) {
-            throw new ProctorException(56983266541l, "test ended, cannot go to next category", "");
-        }
+	@Transactional
+	private void endCurrentProgress(Progress progress) {
+		long startAt = progress.getStartAt().getTime() / 1000;
+		long now = new Date().getTime() / 1000;
+		long timePassed = (now - startAt);
+		long timeAllowed = (long) progress.getCategory().getTimeAllowedInSeconds();
+		if (timePassed >= timeAllowed) {
+			Date endAt = new Date((startAt + timeAllowed) * 1000);
+			progress.setEndAt(endAt);
+		} else {
+			progress.setEndAt(new Date());// end now
+		}
+		// sessionFactory.getCurrentSession().saveOrUpdate(progress);
+	}
 
-        // no progress started yet, start the first one in tests
-        if (latestProgress == null) {
-            latestProgress = new Progress(testSession, test.getCategories().get(0));
-            testSession.addProgress(latestProgress);
-            testSessionController.saveOrUpdate(testSession);
-            Category category = latestProgress.getCategory();
-            return withAllFields(category);
-        }
+	public void checkTestSubmitted(TestSession testSession) {
+		if (testSession.isTestSubmitted()) {
+			throw new ProctorException(56983266541l, "test ended, cannot go to next category", "");
+		}
+	}
 
-        // there is already a category in progress, ending it.
-        latestProgress.setEndAt(new Date());
-        // TODO what if time allowed has passed?
-        Category currentCategory = latestProgress.getCategory();
-        List<Category> categories = test.getCategories();
-        int currIdx = categories.indexOf(currentCategory);
-        if (currIdx == categories.size() - 1) {
-            // finishing the exam
-            testSessionController.saveOrUpdate(testSession);
-            return null;
-        }
-
-        Category nextCategory = categories.get(currIdx + 1); // this would go to categories[(currIdx+1)%categories.size()]
-        // end current, start new 
-        Progress newProgress = new Progress(testSession, nextCategory);
-        testSession.addProgress(newProgress);
-        testSessionController.saveOrUpdate(testSession);
-        return withAllFields(nextCategory);
-    }
-
-    private Progress toNextProgress(TestSession testSession) {
-        // if test ended, throw exception
-
-        // if no progress, start a new one
-
-        // if there is progress, and time is within timeAllowed, then end current, go to the next category
-
-        // if there is progress, and time is after timeAllowed, then end current one at startAt + timeAllowed, go to next category at current time
-
-    }
-
-    private Category withAllFields(Category category) {
-        category.setTestComponents(category.getTestComponents()); // hacky way to get around Jackson ignoring lazily fetched fields
-        return category;
-    }
+	private Category withAllFields(Category category) {
+		// get around lazily initialized fields
+		category.setTestComponents(category.getTestComponents());
+		return category;
+	}
 }

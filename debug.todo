@@ -114,7 +114,10 @@ Solution: adding the following to `ApplicationConfig` worked:
               .modulesToInstall(Hibernate4Module.class);
   }
   ```
-
+Problem (solved):
+	Using SessionFactory does not call @PrePersist annotated callbacks (solved using default value on CreateTimestamp) 
+	Jackson does not support lazily fetched objects, reporting no session found (solved by disabling force_lazy_loading, instead explicitly setting fields)
+	
 
  ☐ Problem, some fields like `answer` should not be serialized into view
    Hint: http://stackoverflow.com/questions/7854030/configuring-objectmapper-in-spring
