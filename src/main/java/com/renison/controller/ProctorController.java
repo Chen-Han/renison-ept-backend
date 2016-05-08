@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.auth.JwtUtil;
 import com.renison.auth.StudentTokenPayload;
+import com.renison.exception.ErrorNumber;
 import com.renison.exception.ProctorException;
 import com.renison.jackson.View;
 import com.renison.model.Category;
@@ -31,6 +32,7 @@ import com.renison.model.TestSession;
 
 @RestController
 @RequestMapping(value = "/proctor")
+@Transactional
 public class ProctorController {
 	private static JwtUtil jwtUtil = new JwtUtil();
 
@@ -52,7 +54,6 @@ public class ProctorController {
 
 	@RequestMapping(value = "/nextCategory", method = RequestMethod.POST)
 	@JsonView(View.Student.class)
-	@Transactional
 	public Category nextCategory(@RequestHeader("ept-login-token") String eptLoginToken) {
 		TestSession testSession = verifyLoginSession(eptLoginToken);
 		Progress progress = toNextProgress(testSession);
@@ -144,7 +145,7 @@ public class ProctorController {
 
 	public void checkTestSubmitted(TestSession testSession) {
 		if (testSession.isTestSubmitted()) {
-			throw new ProctorException(56983266541l, "test ended, invalid operation", "");
+			throw new ProctorException(56983266541l, "test ended, invalid operation", "", ErrorNumber.TEST_SUBMITTED);
 		}
 	}
 

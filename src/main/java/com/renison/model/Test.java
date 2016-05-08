@@ -33,6 +33,9 @@ public class Test extends BaseModel {
 	@Column(name = "description")
 	@JsonView(View.Public.class)
 	private String description;
+	@Column(name = "comment")
+	@JsonView(View.Admin.class)
+	private String comment;
 
 	@OneToMany(mappedBy = "test")
 	@JsonIgnore // we don't want to serialize or deserialize this
@@ -108,4 +111,13 @@ public class Test extends BaseModel {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
 }

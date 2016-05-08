@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -18,6 +17,7 @@ import javax.persistence.Table;
 
 import org.hibernate.Session;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,7 +33,7 @@ public class TestSession extends BaseModel {
 	@OneToMany(mappedBy = "testSession")
 	@JsonView(View.Public.class)
 	@OrderBy("startAt DESC")
-	@Cascade({ org.hibernate.annotations.CascadeType.ALL })
+	@Cascade({ CascadeType.ALL })
 	private List<Progress> progresses = new ArrayList<Progress>();
 
 	@OneToMany(mappedBy = "testSession")
@@ -44,10 +44,11 @@ public class TestSession extends BaseModel {
 	@JsonView(View.Admin.class)
 	private BigDecimal score;
 
-	@OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+	@OneToOne
 	@JsonView(View.Public.class)
 	@JoinColumn(name = "student_id")
 	@JsonEptView(roles = { "ADMIN" })
+	@Cascade({ CascadeType.ALL })
 	@JsonManagedReference
 	private Student student;
 

@@ -1,9 +1,12 @@
 package com.renison.exception;
 
+import org.springframework.http.HttpStatus;
+
 public class BaseException extends RuntimeException {
 	private Long debugNumber;
 	private String debugMessage; // should include details of the exception
 	private Long errorNumber;
+	private HttpStatus httpCode;
 	private Object data;
 
 	public BaseException(Long debugNumber, String errorMessage, String debugMessage) {
@@ -47,6 +50,14 @@ public class BaseException extends RuntimeException {
 
 	public void setErrorNumber(Long errorNumber) {
 		this.errorNumber = errorNumber;
+	}
+
+	public HttpStatus getHttpCode() {
+		return httpCode;
+	}
+
+	public void setHttpCode(HttpStatus httpCode) {
+		this.httpCode = httpCode;
 	}
 
 }
