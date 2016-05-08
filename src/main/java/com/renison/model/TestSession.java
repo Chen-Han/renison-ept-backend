@@ -1,5 +1,6 @@
 package com.renison.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.Cascade;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.JsonEptView;
@@ -40,7 +42,7 @@ public class TestSession extends BaseModel {
 
 	@Column(name = "score")
 	@JsonView(View.Admin.class)
-	private double score;
+	private BigDecimal score;
 
 	@OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
 	@JsonView(View.Public.class)
@@ -103,10 +105,12 @@ public class TestSession extends BaseModel {
 		return getProgresses().iterator().next();
 	}
 
+	@JsonIgnore
 	public Category getLatestCategory() {
 		return getLatestProgress().getCategory();
 	}
 
+	@JsonIgnore
 	public long getTimeLeftForCurrentProgress() {
 		return getLatestProgress().getTimeLeftInSeconds();
 	}
@@ -119,12 +123,12 @@ public class TestSession extends BaseModel {
 		this.questionResponses = questionResponses;
 	}
 
-	public double getScore() {
+	public BigDecimal getScore() {
 		return score;
 	}
 
-	public void setScore(double score) {
-		this.score = score;
+	public void setScore(BigDecimal score) {
+		this.score = score.setScale(6, BigDecimal.ROUND_HALF_UP);
 	}
 
 	public boolean isTestSubmitted() {

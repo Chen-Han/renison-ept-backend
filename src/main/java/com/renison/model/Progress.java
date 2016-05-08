@@ -13,6 +13,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.View;
 
@@ -74,6 +75,7 @@ public class Progress extends BaseModel {
 		this.endAt = endAt;
 	}
 
+	@JsonIgnore
 	public Date getExpectedEndAt() {
 		// vals in milisec
 		long startAt = this.startAt.getTime();
@@ -81,6 +83,7 @@ public class Progress extends BaseModel {
 		return new Date(startAt + timeAllowed);
 	}
 
+	@JsonIgnore
 	public long getTimeLeftInSeconds() {
 		if (this.getEndAt() != null) {
 			throw new IllegalStateException("Progress already ended, cannot get time left");

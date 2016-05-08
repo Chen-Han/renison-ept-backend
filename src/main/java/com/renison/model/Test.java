@@ -16,6 +16,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.renison.jackson.View;
@@ -34,7 +35,7 @@ public class Test extends BaseModel {
 	private String description;
 
 	@OneToMany(mappedBy = "test")
-	@JsonView(View.Public.class)
+	@JsonIgnore // we don't want to serialize or deserialize this
 	@Cascade({ CascadeType.PERSIST, CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@OrderBy("ordering ASC")
 	private List<Category> categories = new ArrayList<Category>();
@@ -45,9 +46,10 @@ public class Test extends BaseModel {
 	private boolean active = false;
 
 	@OneToMany(mappedBy = "test")
-	@JsonView(View.Admin.class)
+	@JsonIgnore
 	private Set<TestSession> testSessions = new HashSet<>();
 
+	@JsonIgnore
 	public Category getFirstCategory() {
 		if (getCategories().isEmpty()) {
 			return null;

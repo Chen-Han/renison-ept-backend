@@ -3,6 +3,7 @@ package com.renison;
 import java.util.List;
 import java.util.Properties;
 
+import javax.servlet.FilterConfig;
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
@@ -17,12 +18,14 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate5.support.OpenSessionInViewFilter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
 
@@ -105,8 +108,9 @@ public class ApplicationConfig {
 				ObjectMapper mapper = new ObjectMapper();
 				// Registering Hibernate4Module to support lazy objects
 				Hibernate4Module hibernate4Module = new Hibernate4Module();
-				hibernate4Module.disable(Hibernate4Module.Feature.FORCE_LAZY_LOADING);
+				hibernate4Module.enable(Hibernate4Module.Feature.FORCE_LAZY_LOADING);
 				mapper.registerModule(hibernate4Module);
+				mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
 				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 				messageConverter.setObjectMapper(mapper);
 				return messageConverter;
@@ -142,4 +146,12 @@ public class ApplicationConfig {
 	// mapper.setAnnotationIntrospector(introspector);
 	// return mapper;
 	// }
+
+	// this solves lazily loaded fields cannot be serialized
+	@Bean
+	public OpenSessionInViewFilter configureOpenSessionInViewFilter() {
+		OpenSessionInViewFilter openSessionInViewFilter = new OpenSessionInViewFilter();
+		FilterConfig filterConfig = openSessionInViewFilter.getFilterConfig();
+		return openSessionInViewFilter;
+	}
 }

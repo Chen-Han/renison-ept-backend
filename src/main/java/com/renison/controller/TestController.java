@@ -1,27 +1,30 @@
 package com.renison.controller;
 
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.renison.exception.NotFoundException;
 import com.renison.model.Test;
-import com.renison.repository.TestRepository;
 
 @RestController
 @RequestMapping("/tests")
 public class TestController extends BaseController<Test> {
 
-    private TestRepository testRepo;
+	public TestController() {
+		super();
+	}
 
-    @Autowired
-    public TestController(TestRepository testRepo) {
-        super(testRepo);
-        this.testRepo = testRepo;
-    }
+	public Test getActive() {
+		Test test = (Test) this.sessionFactory.getCurrentSession().createCriteria(getResourceType())
+				.add(Restrictions.eq("active", true)).uniqueResult();
+		if (test == null) {
+			throw new NotFoundException(33002698748l, "No active test", "");
+		}
+		return test;
+	}
 
-    public Test getActive() {
-        List<Test> tests = this.testRepo.getActiveTests();
-        //TODO handle empty collection
-        return tests.iterator().next();
-    }
+	protected Class<Test> getResourceType() {
+		return Test.class;
+	}
 }
