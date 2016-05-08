@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -25,12 +26,14 @@ public class Category extends BaseModel {
 	@JsonView(View.Public.class)
 	@NotNull
 	@JoinColumn(name = "test_id", nullable = false)
-	@JsonBackReference
+	@JsonBackReference("test")
 	private Test test;
 
-	@OneToMany(mappedBy = "category")
+	@OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
 	@JsonView(View.Public.class)
 	@Cascade({ CascadeType.PERSIST, CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	// no managed reference here
+	// http://stackoverflow.com/questions/32070139/can-not-handle-managed-back-reference-defaultreference-in-jackson-for-composit
 	// this field is not serialized by Jackson
 	// http://stackoverflow.com/questions/21708339/avoid-jackson-serialization-on-non-fetched-lazy-objects
 	private List<TestComponent> testComponents = new ArrayList<TestComponent>();
@@ -43,8 +46,8 @@ public class Category extends BaseModel {
 	@JsonView(View.Public.class)
 	private int ordering;
 
-	@OneToMany
-	@JsonBackReference
+	@OneToMany(mappedBy = "category")
+	@JsonBackReference("progresses")
 	private List<Progress> progresses;
 
 	public int getOrdering() {

@@ -13,7 +13,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.View;
 
@@ -24,7 +23,7 @@ public class Progress extends BaseModel {
 	@JsonView(View.Public.class)
 	@JoinColumn(name = "category_id", nullable = false)
 	@NotNull
-	@JsonManagedReference
+	// @JsonManagedReference("category") no managed reference here
 	private Category category;
 
 	@Column(name = "start_at", columnDefinition = "timestamp with time zone", nullable = false)
@@ -73,6 +72,24 @@ public class Progress extends BaseModel {
 
 	public void setEndAt(Date endAt) {
 		this.endAt = endAt;
+	}
+
+	public Date getExpectedEndAt() {
+		// vals in milisec
+		long startAt = this.startAt.getTime();
+		long timeAllowed = getCategory().getTimeAllowedInSeconds() * 1000;
+		return new Date(startAt + timeAllowed);
+	}
+
+	public long getTimeLeftInSeconds() {
+		if (this.getEndAt() != null) {
+			throw new IllegalStateException("Progress already ended, cannot get time left");
+		}
+		long startAt = this.getStartAt().getTime() / 1000;
+		long now = new Date().getTime() / 1000;
+		long timePassed = (now - startAt);
+		long timeAllowed = (long) this.getCategory().getTimeAllowedInSeconds();
+		return Math.max(0, timeAllowed - timePassed);
 	}
 
 	public TestSession getTestSession() {

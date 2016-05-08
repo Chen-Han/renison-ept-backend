@@ -1,6 +1,5 @@
 package com.renison;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Properties;
 
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
@@ -24,6 +22,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
 
@@ -93,13 +92,6 @@ public class ApplicationConfig {
 	}
 
 	@Bean
-	public Jackson2ObjectMapperBuilder jacksonBuilder() {
-		Jackson2ObjectMapperBuilder b = new Jackson2ObjectMapperBuilder();
-		b.indentOutput(true).dateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-		return b;
-	}
-
-	@Bean
 	public WebMvcConfigurer corsConfigurer() {
 		return new WebMvcConfigurerAdapter() {
 			@Override
@@ -115,7 +107,7 @@ public class ApplicationConfig {
 				Hibernate4Module hibernate4Module = new Hibernate4Module();
 				hibernate4Module.disable(Hibernate4Module.Feature.FORCE_LAZY_LOADING);
 				mapper.registerModule(hibernate4Module);
-
+				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 				messageConverter.setObjectMapper(mapper);
 				return messageConverter;
 

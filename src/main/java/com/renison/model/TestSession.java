@@ -16,6 +16,7 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import org.hibernate.Session;
+import org.hibernate.annotations.Cascade;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -27,9 +28,10 @@ import com.renison.jackson.View;
 @Table(name = "test_session")
 public class TestSession extends BaseModel {
 
-	@OneToMany(mappedBy = "testSession", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+	@OneToMany(mappedBy = "testSession")
 	@JsonView(View.Public.class)
 	@OrderBy("startAt DESC")
+	@Cascade({ org.hibernate.annotations.CascadeType.ALL })
 	private List<Progress> progresses = new ArrayList<Progress>();
 
 	@OneToMany(mappedBy = "testSession")
@@ -101,6 +103,14 @@ public class TestSession extends BaseModel {
 		return getProgresses().iterator().next();
 	}
 
+	public Category getLatestCategory() {
+		return getLatestProgress().getCategory();
+	}
+
+	public long getTimeLeftForCurrentProgress() {
+		return getLatestProgress().getTimeLeftInSeconds();
+	}
+
 	public Set<QuestionResponse> getQuestionResponses() {
 		return questionResponses;
 	}
@@ -119,6 +129,10 @@ public class TestSession extends BaseModel {
 
 	public boolean isTestSubmitted() {
 		return testSubmitted;
+	}
+
+	public boolean isTestStarted() {
+		return getLatestProgress() != null;
 	}
 
 	public void markAsSubmitted() {

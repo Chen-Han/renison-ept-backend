@@ -119,6 +119,8 @@ Problem (solved):
 	Jackson does not support lazily fetched objects, reporting no session found (solved by disabling force_lazy_loading, instead explicitly setting fields)
 	
 
+Hibernate doe not support JPA @Cascade annotation, it must use its own.
+
  ☐ Problem, some fields like `answer` should not be serialized into view
    Hint: http://stackoverflow.com/questions/7854030/configuring-objectmapper-in-spring
      Read up on jackson json view
