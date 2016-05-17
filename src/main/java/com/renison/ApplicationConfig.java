@@ -100,6 +100,10 @@ public class ApplicationConfig {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**").allowedOrigins("*");
+				registry.addMapping("/**/**").allowedOrigins("*");
+				registry.addMapping("/**/**/**").allowedOrigins("*");
+				registry.addMapping("/tests/**").allowedOrigins("*");
+
 			}
 
 			public MappingJackson2HttpMessageConverter jacksonMessageConverter() {

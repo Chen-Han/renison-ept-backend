@@ -1,27 +1,33 @@
 package com.renison.controller;
 
+import java.beans.FeatureDescriptor;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import com.renison.exception.NotFoundException;
+import com.renison.model.BaseModel;
 
 @RequestMapping(consumes = { MediaType.APPLICATION_JSON_VALUE })
 @Transactional
-public abstract class BaseController<T> {
+@CrossOrigin("*")
+public abstract class BaseController<T extends BaseModel> {
 	private Logger logger = Logger.getLogger(BaseController.class);
 
 	protected SessionFactory sessionFactory;
@@ -57,17 +63,13 @@ public abstract class BaseController<T> {
 		logger.debug(String.format("update() of id#%s with body %s", id, json));
 		logger.debug(String.format("T json is of type %s", json.getClass()));
 
-		T entity = this.get(id);
-		try {
-			BeanUtils.copyProperties(entity, json);
-		} catch (Exception e) {
-			logger.warn("while copying properties", e);
-			throw Throwables.propagate(e);
-		}
-
-		logger.debug(String.format("merged entity: %s", entity));
-
-		sessionFactory.getCurrentSession().update(entity);
+		T entity = get(id);
+		// copy all non-null values in json to entity
+		// TODO caution, if user's intention is to null out some values, this
+		// would
+		// fail
+		BeanUtils.copyProperties(json, entity, getNullPropertyNames(json));
+		sessionFactory.getCurrentSession().saveOrUpdate(entity);
 		logger.debug(String.format("updated enitity: %s", entity));
 		return entity;
 	}
@@ -78,6 +80,12 @@ public abstract class BaseController<T> {
 		Map<String, Object> m = Maps.newHashMap();
 		m.put("success", true);
 		return m;
+	}
+
+	public static String[] getNullPropertyNames(Object source) {
+		final BeanWrapper wrappedSource = new BeanWrapperImpl(source);
+		return Stream.of(wrappedSource.getPropertyDescriptors()).map(FeatureDescriptor::getName)
+				.filter(propertyName -> wrappedSource.getPropertyValue(propertyName) == null).toArray(String[]::new);
 	}
 
 	public SessionFactory getSessionFactory() {

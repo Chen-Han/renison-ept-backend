@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -14,6 +13,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -29,8 +30,16 @@ public class Category extends BaseModel {
 	@JsonBackReference("test")
 	private Test test;
 
-	@OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+	@Column(name = "name")
 	@JsonView(View.Public.class)
+	private String name;
+
+	@OneToMany(mappedBy = "category")
+	// see here for the error cannot fetch multiple bags simultaneously
+	// http://stackoverflow.com/questions/4334970/hibernate-cannot-simultaneously-fetch-multiple-bags
+	@LazyCollection(LazyCollectionOption.TRUE)
+	@JsonView(View.Student.class) // student only, admin makes another request
+									// to retrieve info
 	@Cascade({ CascadeType.PERSIST, CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	// no managed reference here
 	// http://stackoverflow.com/questions/32070139/can-not-handle-managed-back-reference-defaultreference-in-jackson-for-composit
@@ -92,6 +101,14 @@ public class Category extends BaseModel {
 
 	public void setProgresses(List<Progress> progresses) {
 		this.progresses = progresses;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

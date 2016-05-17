@@ -15,17 +15,14 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.renison.jackson.View;
 
 @Entity
 @Table(name = "test")
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "id")
 public class Test extends BaseModel {
-	@Column(name = "name", unique = true, nullable = false)
+	@Column(name = "name", nullable = false)
 	@JsonView(View.Public.class)
 	@NotNull
 	private String name;
