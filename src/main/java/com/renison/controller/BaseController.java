@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.Maps;
@@ -74,12 +75,24 @@ public abstract class BaseController<T extends BaseModel> {
 		return entity;
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public @ResponseBody Map<String, Object> delete(@PathVariable Long id) {
 		sessionFactory.getCurrentSession().delete(this.get(id));
 		Map<String, Object> m = Maps.newHashMap();
 		m.put("success", true);
 		return m;
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE)
+	public @ResponseBody Map<String, Object> remove(@RequestParam("id") Long id) {
+		return delete(id);
+	}
+
+	@CrossOrigin("*")
+	@RequestMapping(value = "/**", method = RequestMethod.OPTIONS)
+	public @ResponseBody Boolean options(@PathVariable Long id) {
+		return true;
 	}
 
 	public static String[] getNullPropertyNames(Object source) {

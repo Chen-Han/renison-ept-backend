@@ -130,3 +130,8 @@ Hibernate doe not support JPA @Cascade annotation, it must use its own.
        CRUD control security http://stackoverflow.com/questions/26643036/how-do-i-implement-fine-grained-access-control-in-spring-data-rest
        filtering json fields: http://stackoverflow.com/questions/17276081/spring-3-2-filtering-jackson-json-output-based-on-spring-security-role
        CRUD control security: http://stackoverflow.com/questions/29688195/repository-access-control-in-spring-data-rest-based-off-user-princpal?rq=1
+       
+       
+Note: Apparently spring needs to read application.properties in a very specific way: http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html
+We need to turn on a special OPTIONS request accepting flag in spring, it is like this in command line 
+argument: --spring.application.json='{"dispatchOptionsRequest":true}' 

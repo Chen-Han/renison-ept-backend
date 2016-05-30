@@ -93,6 +93,11 @@ public class Test extends BaseModel {
 		return getCategories().indexOf(category);
 	}
 
+	public void addCategory(Category category) {
+		category.setTest(this);
+		getCategories().add(category);
+	}
+
 	public Category nextCategoryTo(Category category) {
 		int currIndex = getCategoryIndex(category);
 		if (currIndex >= 0 && currIndex < getCategories().size() - 1) {

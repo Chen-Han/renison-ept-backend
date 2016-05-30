@@ -99,10 +99,7 @@ public class ApplicationConfig {
 		return new WebMvcConfigurerAdapter() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins("*");
-				registry.addMapping("/**/**").allowedOrigins("*");
-				registry.addMapping("/**/**/**").allowedOrigins("*");
-				registry.addMapping("/tests/**").allowedOrigins("*");
+				registry.addMapping("/**").allowedOrigins("*").allowedMethods("PUT", "POST", "GET", "DELETE");
 
 			}
 
@@ -158,4 +155,28 @@ public class ApplicationConfig {
 		FilterConfig filterConfig = openSessionInViewFilter.getFilterConfig();
 		return openSessionInViewFilter;
 	}
+
+	// @Bean
+	// public DispatcherServletBeanPostProcessor
+	// dispatcherServletBeanPostProcessor() {
+	// return new DispatcherServletBeanPostProcessor();
+	// }
+	//
+	// public static class DispatcherServletBeanPostProcessor implements
+	// BeanPostProcessor {
+	// @Override
+	// public Object postProcessBeforeInitialization(Object bean, String
+	// beanName) throws BeansException {
+	// if (bean instanceof DispatcherServlet) {
+	// ((DispatcherServlet) bean).setDispatchOptionsRequest(true);
+	// }
+	// return bean;
+	// }
+	//
+	// @Override
+	// public Object postProcessAfterInitialization(Object bean, String
+	// beanName) throws BeansException {
+	// return bean;
+	// }
+	// }
 }

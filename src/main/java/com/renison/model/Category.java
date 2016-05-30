@@ -83,6 +83,11 @@ public class Category extends BaseModel {
 		this.testComponents = testComponents;
 	}
 
+	public void addTestComponent(TestComponent testComponent) {
+		testComponent.setCategory(this);
+		getTestComponents().add(testComponent);
+	}
+
 	public double getTimeAllowed() {
 		return timeAllowed;
 	}

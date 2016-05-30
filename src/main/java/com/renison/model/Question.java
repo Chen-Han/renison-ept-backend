@@ -43,7 +43,7 @@ public abstract class Question extends TestComponent {
 	@JsonView(View.Public.class)
 	private int ordering;
 
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.EAGER, orphanRemoval = true)
 	@JsonView(View.Public.class)
 	@JoinTable(name = "question_answer", joinColumns = {
 			@JoinColumn(name = "question_id", referencedColumnName = "id", nullable = false) }, inverseJoinColumns = {
