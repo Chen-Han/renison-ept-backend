@@ -19,6 +19,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.View;
 
@@ -55,6 +56,27 @@ public abstract class Question extends TestComponent {
 	@JsonBackReference("questionResponses")
 	private Set<QuestionResponse> questionResponses;
 
+	@JsonIgnore
+	public int getScore(QuestionResponse questionResponse) {
+		Set<ResponseContent> responseContents = questionResponse.getResponseContents();
+		if (responseContents == null || responseContents.isEmpty()) {
+			return 0;
+		}
+		ResponseContent responseContent = responseContents.iterator().next();// one
+																				// response
+																				// for
+																				// now
+		// response matches any correct answer?
+		boolean isCorrect = getAnswers().stream().filter((a) -> a.isCorrect()).anyMatch((a) -> {
+			return a.getContent().trim().toLowerCase().equals(responseContent.getText().trim().toLowerCase());
+		});
+		if (isCorrect) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
 	public List<Answer> getAnswers() {
 		return answers;
 	}
@@ -90,5 +112,4 @@ public abstract class Question extends TestComponent {
 	public static boolean isScorable() {
 		return scorable;
 	}
-
 }

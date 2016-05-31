@@ -1,6 +1,5 @@
 package com.renison.model;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,13 +17,14 @@ import javax.persistence.Table;
 import org.hibernate.Session;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.criterion.Restrictions;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.JsonEptView;
 import com.renison.jackson.View;
+import com.renison.jackson.View.Admin;
 
 @Entity
 @Table(name = "test_session")
@@ -40,16 +40,11 @@ public class TestSession extends BaseModel {
 	@JsonView(View.Public.class)
 	private Set<QuestionResponse> questionResponses = new HashSet<QuestionResponse>();
 
-	@Column(name = "score")
-	@JsonView(View.Admin.class)
-	private BigDecimal score;
-
 	@OneToOne
 	@JsonView(View.Public.class)
 	@JoinColumn(name = "student_id")
 	@JsonEptView(roles = { "ADMIN" })
 	@Cascade({ CascadeType.ALL })
-	@JsonManagedReference
 	private Student student;
 
 	@JsonBackReference
@@ -58,9 +53,48 @@ public class TestSession extends BaseModel {
 	@JoinColumn(name = "test_id")
 	private Test test;
 
+	@OneToMany(mappedBy = "testSession")
+	@JsonView(Admin.class)
+	@Cascade({ CascadeType.ALL })
+	private Set<CategoryScore> categoryScores = new HashSet<>();
+
 	@Column(name = "test_submitted", columnDefinition = "boolean DEFAULT FALSE")
 	@JsonView(View.Public.class)
 	private boolean testSubmitted;
+
+	/**
+	 * rescores all questions in this test for this student
+	 * 
+	 * @param session
+	 */
+	@JsonIgnore
+	public void scoreTest(Session session) {
+		// clear all previous scores
+		for (CategoryScore score : getCategoryScores()) {
+			score.getCategory().getCategoryScores().remove(score);
+			session.delete(score);
+		}
+		getCategoryScores().clear(); // clear all existing category scores
+		for (Category category : test.getCategories()) {
+			int totalScore = 0;
+			for (TestComponent question : category.getTestComponents()) {
+				if (!(question instanceof Question)) {
+					continue;
+				}
+				question = (Question) question;
+				QuestionResponse questionResponse = (QuestionResponse) session.createCriteria(QuestionResponse.class)
+						.add(Restrictions.eq("testSession", this)).add(Restrictions.eq("question", question))
+						.uniqueResult();
+				if (questionResponse == null) {
+					continue;
+				}
+				totalScore += questionResponse.getQuestionScore();
+			}
+			CategoryScore categoryScore = new CategoryScore(this, category, totalScore);
+			category.getCategoryScores().add(categoryScore);
+			getCategoryScores().add(categoryScore);
+		}
+	}
 
 	public Test getTest() {
 		return test;
@@ -124,14 +158,6 @@ public class TestSession extends BaseModel {
 		this.questionResponses = questionResponses;
 	}
 
-	public BigDecimal getScore() {
-		return score;
-	}
-
-	public void setScore(BigDecimal score) {
-		this.score = score.setScale(6, BigDecimal.ROUND_HALF_UP);
-	}
-
 	public boolean isTestSubmitted() {
 		return testSubmitted;
 	}
@@ -142,6 +168,14 @@ public class TestSession extends BaseModel {
 
 	public void markAsSubmitted() {
 		testSubmitted = true;
+	}
+
+	public Set<CategoryScore> getCategoryScores() {
+		return categoryScores;
+	}
+
+	public void setCategoryScores(Set<CategoryScore> categoryScores) {
+		this.categoryScores = categoryScores;
 	}
 
 }

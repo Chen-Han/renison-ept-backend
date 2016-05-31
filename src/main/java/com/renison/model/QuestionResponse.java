@@ -14,6 +14,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.View;
 
@@ -49,6 +50,11 @@ public class QuestionResponse extends BaseModel {
 	public QuestionResponse(TestSession testSession, Question question) {
 		this.question = question;
 		this.testSession = testSession;
+	}
+
+	@JsonIgnore
+	public int getQuestionScore() {
+		return getQuestion().getScore(this);
 	}
 
 	public TestSession getTestSession() {

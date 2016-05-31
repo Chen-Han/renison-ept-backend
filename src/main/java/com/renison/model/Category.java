@@ -1,7 +1,9 @@
 package com.renison.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,6 +19,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.View;
 
@@ -58,6 +61,10 @@ public class Category extends BaseModel {
 	@OneToMany(mappedBy = "category")
 	@JsonBackReference("progresses")
 	private List<Progress> progresses;
+
+	@OneToMany(mappedBy = "category")
+	@JsonIgnore
+	private Set<CategoryScore> categoryScores = new HashSet<>();
 
 	public int getOrdering() {
 		return ordering;
@@ -114,6 +121,14 @@ public class Category extends BaseModel {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Set<CategoryScore> getCategoryScores() {
+		return categoryScores;
+	}
+
+	public void setCategoryScores(Set<CategoryScore> categoryScores) {
+		this.categoryScores = categoryScores;
 	}
 
 }
