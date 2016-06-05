@@ -1,1 +1,1 @@
-web: mvn clean install && java -jar ./target/renison-ept-1.0-SNAPSHOT.jar
+web: java -Dserver.port="$PORT" -jar ./target/renison-ept-1.0-SNAPSHOT.jar --spring.application.json='{"dispatchOptionsRequest":true}' --spring.config.location=src/main/resources/application.heroku.properties
