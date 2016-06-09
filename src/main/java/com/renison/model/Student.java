@@ -11,7 +11,10 @@ import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.renison.jackson.View;
+import com.renison.util.JsonUtil;
+import com.renison.util.Util;
 
 @Entity
 @Table(name = "student")
@@ -21,30 +24,30 @@ public class Student extends BaseModel {
 	}
 
 	@Column(name = "first_name")
-	@JsonView(View.Public.class)
+	@JsonView({ View.Public.class })
 	private String firstName;
 	@Column(name = "last_name")
-	@JsonView(View.Public.class)
+	@JsonView({ View.Public.class })
 	private String lastName;
 	@Column(name = "student_id")
-	@JsonView(View.Public.class)
+	@JsonView({ View.Public.class })
 	private String studentId;
 	@Column(name = "gender")
-	@JsonView(View.Public.class)
+	@JsonView({ View.Public.class })
 	private Gender gender;
 	@Column(name = "email")
-	@JsonView(View.Public.class)
+	@JsonView({ View.Public.class })
 	private String email;
 	@Column(name = "date_of_birth")
-	@JsonView(View.Public.class)
+	@JsonView({ View.Public.class })
 	@Temporal(TemporalType.DATE) // have to put it to avoid `trailing junk on
 									// timestamp` error
 	private Date dateOfBirth;
 	@Column(name = "university")
-	@JsonView(View.Public.class)
+	@JsonView({ View.Public.class })
 	private String university;
 	@Column(name = "currentMajor")
-	@JsonView(View.Public.class)
+	@JsonView({ View.Public.class })
 	private String currentMajor;
 	@OneToOne(mappedBy = "student")
 	@JsonBackReference
@@ -122,4 +125,16 @@ public class Student extends BaseModel {
 		this.testSession = testSession;
 	}
 
+	public ObjectNode toReportFormat() {
+		ObjectNode objectNode = JsonUtil.newJsonObject();
+		objectNode.put("First Name", firstName);
+		objectNode.put("Last Name", lastName);
+		objectNode.put("Student ID", studentId);
+		objectNode.put("Gender", gender == Gender.MALE ? "M" : "F");
+		objectNode.put("Email", email);
+		objectNode.put("Date of Birth", dateOfBirth == null ? "" : Util.formatLocalDate(dateOfBirth));
+		objectNode.put("University", university);
+		objectNode.put("Current Major", currentMajor);
+		return objectNode;
+	}
 }

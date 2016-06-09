@@ -1,6 +1,7 @@
 package com.renison.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.hibernate.Session;
@@ -17,13 +18,17 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.renison.exception.BadRequestException;
 import com.renison.exception.InternalErrorException;
 import com.renison.exception.NotFoundException;
 import com.renison.jackson.View.Admin;
 import com.renison.model.Category;
+import com.renison.model.CategoryScore;
 import com.renison.model.Test;
 import com.renison.model.TestSession;
+import com.renison.util.JsonUtil;
 
 @RestController
 @RequestMapping("/tests")
@@ -88,6 +93,41 @@ public class TestController extends BaseController<Test> {
 			testSession.scoreTest(session);
 			session.save(testSession);
 		}
+	}
+
+	@JsonView(Admin.class)
+	@RequestMapping(value = "/{testId}/report", method = RequestMethod.GET)
+	public @ResponseBody ArrayNode generateReport(@PathVariable Long testId) {
+		Test test = get(testId);
+		Session session = sessionFactory.getCurrentSession();
+		Set<TestSession> testSessions = test.getTestSessions();
+		ArrayNode result = JsonUtil.newArrayNode();
+		for (TestSession t : testSessions) {
+			ObjectNode row = JsonUtil.newJsonObject();
+			row = JsonUtil.merge(row, t.getStudent().toReportFormat());
+			// get something like
+			// {"listening":50,"reading":30} keys are category name, values are
+			// scores
+			ObjectNode categoryScores = JsonUtil.newJsonObject();
+			for (Category category : test.getCategories()) {
+				Optional<CategoryScore> categoryScore = t.getCategoryScores().stream()
+						.filter((cs) -> cs.getCategory().equals(category)).findFirst();
+				String categoryName = category.getName() + " (total: " + category.getTotalScore() + ")";
+				categoryScores.put(categoryName,
+						categoryScore.isPresent() ? categoryScore.get().getScore().doubleValue() : 0.0);
+			}
+			row = JsonUtil.merge(row, categoryScores);
+			result.add(row);
+		}
+		return result;
+	}
+
+	@JsonView(Admin.class)
+	@RequestMapping(value = "/report", method = RequestMethod.GET)
+	// this is a hack to resolve a weird frontend issue
+	// angular does not like passing testId in the url
+	public @ResponseBody ArrayNode generateReport2(@RequestParam("id") Long id) {
+		return generateReport(id);
 	}
 
 	protected Class<Test> getResourceType() {

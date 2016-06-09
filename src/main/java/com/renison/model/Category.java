@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.View;
+import com.renison.jackson.View.Admin;
 
 @Entity
 @Table(name = "category")
@@ -131,4 +132,11 @@ public class Category extends BaseModel {
 		this.categoryScores = categoryScores;
 	}
 
+	@JsonView(Admin.class)
+	// count the # of questions in the category
+	public int getTotalScore() {
+		return (int) getTestComponents().stream().filter((t) -> {
+			return (t instanceof MultipleChoice) || (t instanceof ShortAnswer) || (t instanceof TrueFalse);
+		}).count();
+	}
 }

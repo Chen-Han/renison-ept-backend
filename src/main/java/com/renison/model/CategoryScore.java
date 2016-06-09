@@ -10,6 +10,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.renison.jackson.View;
 
 @Entity
 @Table(name = "category_score")
@@ -27,6 +29,8 @@ public class CategoryScore extends BaseModel {
 	private Category category;
 
 	@Column(name = "score")
+	@JsonView({ View.Public.class })
+
 	private BigDecimal score;
 
 	public CategoryScore() {
@@ -66,5 +70,4 @@ public class CategoryScore extends BaseModel {
 	public void setScore(BigDecimal score) {
 		this.score = score.setScale(5, BigDecimal.ROUND_HALF_UP);
 	}
-
 }
