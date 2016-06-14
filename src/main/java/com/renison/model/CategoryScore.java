@@ -9,7 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.View;
 
@@ -18,13 +18,13 @@ import com.renison.jackson.View;
 public class CategoryScore extends BaseModel {
 	@ManyToOne
 	@JoinColumn(name = "test_session_id", nullable = false)
-	@JsonBackReference
+	@JsonIgnore
 	@NotNull
 	private TestSession testSession;
 
 	@ManyToOne
 	@JoinColumn(name = "category_id", nullable = false)
-	@JsonBackReference
+	@JsonIgnore
 	@NotNull
 	private Category category;
 
