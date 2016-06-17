@@ -49,6 +49,18 @@ public class TestController extends BaseController<Test> {
 	}
 
 	@JsonView(Admin.class)
+	@RequestMapping(value = "/{testId}/copy", method = RequestMethod.POST)
+	public @ResponseBody Test copyTest(@PathVariable Long testId) {
+		Session session = sessionFactory.getCurrentSession();
+		Test test = get(testId);
+		test.setName(test.getName() + " copy");
+		test.detach();
+		session.clear();
+		session.persist(test);
+		return test;
+	}
+
+	@JsonView(Admin.class)
 	@RequestMapping(value = "/{testId}/categories", method = RequestMethod.GET)
 	public List<Category> getCategories(@PathVariable Long testId) {
 		return this.get(testId).getCategories();

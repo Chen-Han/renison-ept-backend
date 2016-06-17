@@ -44,7 +44,7 @@ public class Category extends BaseModel {
 	@LazyCollection(LazyCollectionOption.TRUE)
 	@JsonView(View.Student.class) // student only, admin makes another request
 									// to retrieve info
-	@Cascade({ CascadeType.PERSIST, CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade({ CascadeType.PERSIST, CascadeType.SAVE_UPDATE, CascadeType.DELETE, CascadeType.DETACH })
 	// no managed reference here
 	// http://stackoverflow.com/questions/32070139/can-not-handle-managed-back-reference-defaultreference-in-jackson-for-composit
 	// this field is not serialized by Jackson
@@ -138,5 +138,15 @@ public class Category extends BaseModel {
 		return (int) getTestComponents().stream().filter((t) -> {
 			return (t instanceof MultipleChoice) || (t instanceof ShortAnswer) || (t instanceof TrueFalse);
 		}).count();
+	}
+
+	@Override
+	public void detach() {
+		super.detach();
+		this.setProgresses(new ArrayList<>());
+		this.setCategoryScores(new HashSet<>());
+		for (TestComponent t : getTestComponents()) {
+			t.detach();
+		}
 	}
 }

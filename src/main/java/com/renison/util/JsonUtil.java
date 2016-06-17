@@ -2,7 +2,6 @@ package com.renison.util;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +45,6 @@ public class JsonUtil {
 		return copy;
 	}
 
-	@JsonView(View.Report.class)
 	public static ObjectNode parsePOJO(Object object, Class<?> jsonViewType) {
 		SerializationConfig original = mapper.getSerializationConfig();
 		mapper.setConfig(original.withView(jsonViewType));
@@ -58,6 +56,5 @@ public class JsonUtil {
 	public static void main(String[] args) {
 		Student student = new Student();
 		student.setFirstName("Han");
-		System.out.println(parsePOJO(student, View.Report.class).toString());
 	}
 }

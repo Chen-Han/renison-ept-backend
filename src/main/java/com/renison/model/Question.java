@@ -1,6 +1,7 @@
 package com.renison.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -49,7 +50,7 @@ public abstract class Question extends TestComponent {
 	@JoinTable(name = "question_answer", joinColumns = {
 			@JoinColumn(name = "question_id", referencedColumnName = "id", nullable = false) }, inverseJoinColumns = {
 					@JoinColumn(name = "answer_id", referencedColumnName = "id", nullable = false) })
-	@Cascade({ CascadeType.PERSIST, CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade({ CascadeType.PERSIST, CascadeType.SAVE_UPDATE, CascadeType.DELETE, CascadeType.DETACH })
 	private List<Answer> answers = new ArrayList<Answer>();
 
 	@OneToMany(mappedBy = "question")
@@ -111,5 +112,17 @@ public abstract class Question extends TestComponent {
 
 	public static boolean isScorable() {
 		return scorable;
+	}
+
+	@Override
+	public void detach() {
+		super.detach();
+		this.setQuestionResponses(new HashSet<>());
+		for (Answer a : getAnswers()) {
+			a.detach();
+		}
+		ArrayList<Answer> list = new ArrayList<>();
+		list.addAll(getAnswers());
+		this.setAnswers(list);
 	}
 }

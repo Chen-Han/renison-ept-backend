@@ -21,7 +21,7 @@ import com.renison.listener.BaseModelListener;
 
 @MappedSuperclass
 @EntityListeners(BaseModelListener.class)
-public abstract class BaseModel {
+public abstract class BaseModel implements Detachable {
 
 	@Id
 	@Column(name = "id")
@@ -88,4 +88,14 @@ public abstract class BaseModel {
 		updateTimestamp = new Date();
 	}
 
+	protected void resetIdTimestamp() {
+		this.setId(null);
+		this.setCreateTimestamp(new Date());
+		this.setUpdateTimestamp(new Date());
+	}
+
+	@Override
+	public void detach() {
+		this.resetIdTimestamp();
+	}
 }

@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.function.Consumer;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeanUtils;
 
 public class Util {
 	private static Logger logger = Logger.getLogger(Util.class);
@@ -34,5 +35,9 @@ public class Util {
 	public static String formatLocalDate(Date date) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		return sdf.format(date);
+	}
+
+	public static <T> void copyWithoutIdTime(T src, T dst) {
+		BeanUtils.copyProperties(src, dst, "id", "createTimestamp", "updateTimestamp");
 	}
 }

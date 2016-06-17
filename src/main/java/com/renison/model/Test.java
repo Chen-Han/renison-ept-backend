@@ -36,7 +36,7 @@ public class Test extends BaseModel {
 
 	@OneToMany(mappedBy = "test")
 	@JsonIgnore // we don't want to serialize or deserialize this
-	@Cascade({ CascadeType.PERSIST, CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade({ CascadeType.PERSIST, CascadeType.SAVE_UPDATE, CascadeType.DELETE, CascadeType.DETACH })
 	@OrderBy("ordering ASC")
 	private List<Category> categories = new ArrayList<Category>();
 
@@ -122,4 +122,18 @@ public class Test extends BaseModel {
 		this.comment = comment;
 	}
 
+	@Override
+	public void detach() {
+		super.detach();
+		this.getTestSessions().clear();
+		this.setActive(false);
+		for (Category c : this.getCategories()) {
+			c.detach();
+		}
+		// must create a new array list so that hibernate
+		// does not think it's old
+		ArrayList<Category> set = new ArrayList<>();
+		set.addAll(this.getCategories());
+		this.setCategories(set);
+	}
 }

@@ -82,4 +82,9 @@ public abstract class TestComponent extends BaseModel {
 	public void setOrdering(int ordering) {
 		this.ordering = ordering;
 	}
+
+	@Override
+	public void detach() {
+		super.detach();
+	}
 }
