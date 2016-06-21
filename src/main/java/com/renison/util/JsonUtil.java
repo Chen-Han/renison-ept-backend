@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.renison.jackson.View;
-import com.renison.model.Student;
 
 public class JsonUtil {
 
@@ -51,10 +49,5 @@ public class JsonUtil {
 		ObjectNode objectNode = mapper.valueToTree(object);
 		mapper.setConfig(original);
 		return objectNode;
-	}
-
-	public static void main(String[] args) {
-		Student student = new Student();
-		student.setFirstName("Han");
 	}
 }
