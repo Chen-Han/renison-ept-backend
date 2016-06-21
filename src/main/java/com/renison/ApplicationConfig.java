@@ -3,6 +3,7 @@ package com.renison;
 import java.util.List;
 import java.util.Properties;
 
+import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.sql.DataSource;
 
@@ -10,7 +11,9 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -28,10 +31,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
+import com.renison.auth.AdminAuthFilter;
 
 @Configurable
 @Configuration
 @EnableTransactionManagement
+
+@ComponentScan
 public class ApplicationConfig {
 	@Autowired
 	private Environment env;
@@ -56,7 +62,7 @@ public class ApplicationConfig {
 	public LocalSessionFactoryBean sessionFactory() {
 		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
 		sessionFactory.setDataSource(dataSource());
-		sessionFactory.setPackagesToScan(new String[] { "com.renison.model" });
+		sessionFactory.setPackagesToScan(new String[] { "com.renison.model", "com.renison.auth" });
 		sessionFactory.setHibernateProperties(hibernateProperties());
 		return sessionFactory;
 	}
@@ -183,4 +189,17 @@ public class ApplicationConfig {
 	// factory.setEntityManagerFactory(emf);
 	// return factory;
 	// }
+
+	@Bean
+	public FilterRegistrationBean filterRegBean() {
+		FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+		filterRegistrationBean.setFilter(adminAuthFilter());
+		filterRegistrationBean.addUrlPatterns("/tests/**", "/categories/**", "/testComponents/**", "/**");
+		return filterRegistrationBean;
+	}
+
+	@Bean(name = "AdminFilter")
+	public Filter adminAuthFilter() {
+		return new AdminAuthFilter();
+	}
 }
