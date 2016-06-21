@@ -1,7 +1,9 @@
 package com.renison.controller;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -28,6 +30,7 @@ import com.renison.model.Question;
 import com.renison.model.QuestionResponse;
 import com.renison.model.ResponseContent;
 import com.renison.model.Test;
+import com.renison.model.TestComponent;
 import com.renison.model.TestSession;
 
 @RestController
@@ -49,7 +52,7 @@ public class ProctorController {
 		TestSession testSession = verifyLoginSession(eptLoginToken);
 		checkTestSubmitted(testSession);
 		Progress progress = testSession.getLatestProgress();
-		return withAllFields(progress.getCategory());
+		return withMetaInfo(progress.getCategory(), testSession);
 	}
 
 	@RequestMapping(value = "/nextCategory", method = RequestMethod.POST)
@@ -60,7 +63,7 @@ public class ProctorController {
 		if (progress == null) { // no next progress anymore, test reaches end
 			return null;
 		} else {
-			return withAllFields(progress.getCategory());
+			return withMetaInfo(progress.getCategory(), testSession);
 		}
 	}
 
@@ -149,8 +152,24 @@ public class ProctorController {
 		}
 	}
 
-	private Category withAllFields(Category category) {
-		// get around lazily initialized fields
+	private Category withMetaInfo(Category category, TestSession testSession) {
+		Session session = sessionFactory.getCurrentSession();
+		List<QuestionResponse> questionResponses = session.createCriteria(QuestionResponse.class)
+				.add(Restrictions.eq("testSession", testSession)).list();
+		Set<Question> questions = questionResponses.stream().map((qs) -> {
+			Question q = qs.getQuestion();
+			q.addResponse(qs.getResponseContents().iterator().next().getText());
+			return q;
+		}).collect(Collectors.toSet());
+		List<TestComponent> testComponents = category.getTestComponents();
+		testComponents.stream().forEach((t) -> {
+			if (t instanceof Question) {
+				Question question = (Question) t;
+				if (questions.contains(question)) {
+					question.setSaved(true);
+				}
+			}
+		});
 		return category;
 	}
 

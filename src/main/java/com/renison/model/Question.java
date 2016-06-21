@@ -1,8 +1,10 @@
 package com.renison.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -20,6 +22,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.View;
@@ -56,6 +59,13 @@ public abstract class Question extends TestComponent {
 	@OneToMany(mappedBy = "question")
 	@JsonBackReference("questionResponses")
 	private Set<QuestionResponse> questionResponses;
+
+	@Transient
+	private boolean isSaved;
+
+	@Transient
+	@JsonView(View.Student.class)
+	private Set<Map<String, String>> response;
 
 	@JsonIgnore
 	public int getScore(QuestionResponse questionResponse) {
@@ -112,6 +122,35 @@ public abstract class Question extends TestComponent {
 
 	public static boolean isScorable() {
 		return scorable;
+	}
+
+	@JsonView(View.Student.class)
+	@JsonGetter(value = "isSaved")
+	public boolean isSaved() {
+		return isSaved;
+	}
+
+	public void setSaved(boolean isSaved) {
+		this.isSaved = isSaved;
+	}
+
+	public void addResponse(String text) {
+		Map<String, String> responseObj = new HashMap<>();
+		responseObj.put("text", text);
+		if (getResponse() == null) {
+			setResponse(new HashSet<>());
+		}
+		getResponse().add(responseObj);
+	}
+
+	@JsonGetter("response")
+	@JsonView(View.Student.class)
+	public Set<Map<String, String>> getResponse() {
+		return response;
+	}
+
+	public void setResponse(Set<Map<String, String>> response) {
+		this.response = response;
 	}
 
 	@Override
