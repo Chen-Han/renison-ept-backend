@@ -35,12 +35,12 @@ public abstract class BaseModel implements Detachable {
 	@Expose
 	private Long id;
 
-	@Column(name = "create_timestamp", columnDefinition = "timestamp with time zone", nullable = false, updatable = false, insertable = true)
+	@Column(name = "create_timestamp", nullable = false, updatable = false, insertable = true)
 	@JsonView(View.Public.class)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createTimestamp = new Date();
 
-	@Column(name = "update_timestamp", columnDefinition = "timestamp with time zone", nullable = false)
+	@Column(name = "update_timestamp", nullable = false)
 	@JsonView(View.Public.class)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updateTimestamp = new Date();

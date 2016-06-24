@@ -27,12 +27,12 @@ public class Progress extends BaseModel {
 	// @JsonManagedReference("category") no managed reference here
 	private Category category;
 
-	@Column(name = "start_at", columnDefinition = "timestamp with time zone", nullable = false)
+	@Column(name = "start_at", nullable = false)
 	@JsonView(View.Public.class)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date startAt = new Date(); // defaults to now
 
-	@Column(name = "end_at", columnDefinition = "timestamp with time zone")
+	@Column(name = "end_at")
 	@JsonView(View.Public.class)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date endAt;

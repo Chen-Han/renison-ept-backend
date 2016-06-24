@@ -35,8 +35,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
 		auth.inMemoryAuthentication().//
-				withUser("greg").password("turnquist").roles("USER").and().//
-				withUser("ollie").password("gierke").roles("USER", "ADMIN");
+				withUser("root").password("root@ept").roles("USER").and().//
+				withUser("ron").password("thechampion").roles("USER", "ADMIN");
 	}
 
 	/**
@@ -59,9 +59,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 
 		http.httpBasic().and().authorizeRequests().//
-				antMatchers(HttpMethod.POST, "/employees").hasRole("ADMIN").//
-				antMatchers(HttpMethod.PUT, "/employees/**").hasRole("ADMIN").//
-				antMatchers(HttpMethod.PATCH, "/employees/**").hasRole("ADMIN").and().//
-				csrf().disable();
+				antMatchers(HttpMethod.POST, "/tests/**").hasRole("ADMIN").//
+				antMatchers(HttpMethod.GET, "/tests/**").hasRole("ADMIN").//
+				antMatchers(HttpMethod.DELETE, "/tests/**").hasRole("ADMIN").//
+				antMatchers(HttpMethod.PUT, "/tests/**").hasRole("ADMIN").//
+				antMatchers(HttpMethod.POST, "/categories/**").hasRole("ADMIN").//
+				antMatchers(HttpMethod.GET, "/categories/**").hasRole("ADMIN").//
+				antMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN").//
+				antMatchers(HttpMethod.PUT, "/categories/**").hasRole("ADMIN").//
+				antMatchers(HttpMethod.GET, "/testComponents/**").hasRole("ADMIN").//
+				antMatchers(HttpMethod.PUT, "/testComponents/**").hasRole("ADMIN").//
+				antMatchers(HttpMethod.POST, "/testComponents/**").hasRole("ADMIN").//
+				antMatchers(HttpMethod.DELETE, "/testComponents/**").hasRole("ADMIN");
 	}
 }
