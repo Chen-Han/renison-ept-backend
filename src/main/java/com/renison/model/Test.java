@@ -47,6 +47,7 @@ public class Test extends BaseModel {
 
 	@OneToMany(mappedBy = "test")
 	@JsonIgnore
+	@Cascade({ CascadeType.DELETE })
 	private Set<TestSession> testSessions = new HashSet<>();
 
 	@JsonIgnore

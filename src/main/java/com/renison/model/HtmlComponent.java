@@ -14,7 +14,7 @@ import com.renison.jackson.View;
 @DiscriminatorValue(value = ComponentType.Value.HTML)
 @JsonTypeName(ComponentType.Value.HTML)
 public class HtmlComponent extends TestComponent {
-	@Column(name = "content")
+	@Column(name = "content", columnDefinition = "LONGTEXT")
 	@JsonView(View.Public.class)
 	private String content;
 

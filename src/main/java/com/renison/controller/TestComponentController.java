@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.renison.exception.InternalErrorException;
 import com.renison.exception.ProctorException;
 import com.renison.jackson.View.Admin;
 import com.renison.model.Answer;
+import com.renison.model.HtmlComponent;
 import com.renison.model.Question;
 import com.renison.model.TestComponent;
 
@@ -40,34 +42,31 @@ public class TestComponentController extends BaseController<TestComponent> {
 		// assume that json already has id and all other fields set, we replace
 		// testcomponent in database with this.
 		Session session = sessionFactory.getCurrentSession();
+		json.setId(null);// remove id
 		TestComponent c = get(id); // id is
-		json.setCategory(c.getCategory()); // link to category
-		json.setId(id);
-		json.setCreateTimestamp(c.getCreateTimestamp());
 		// make sure all fields are overriden
 		if (json instanceof Question && c instanceof Question) {
 			Question questionJson = (Question) json;
 			Question questionInDb = (Question) c;
-			questionJson.setComponentType(questionInDb.getComponentType());
-			questionJson.setQuestionResponses(questionInDb.getQuestionResponses());
-			session.clear(); // this clears up all pending DB updates, in this
-								// case
-			// it is ok, we need this to avoid duplicate object
-			// in same session error
-			for (Answer answer : questionJson.getAnswers()) {
-				session.saveOrUpdate(answer);
+			questionInDb.setContent(questionJson.getContent());
+			for (Answer oldAnswer : questionInDb.getAnswers()) {
+				session.delete(oldAnswer);
 			}
-			session.update(questionJson);
+			questionInDb.getAnswers().clear();
+			// erase all new answer ids
+			for (Answer newAnswer : questionJson.getAnswers()) {
+				newAnswer.setId(null);
+			}
+			questionInDb.getAnswers().addAll(questionJson.getAnswers());
+		} else if ((json instanceof HtmlComponent) && c instanceof HtmlComponent) {
+			HtmlComponent compJson = (HtmlComponent) json;
+			HtmlComponent compInDb = (HtmlComponent) c;
+			compInDb.setContent(compJson.getContent());
 		} else {
-
-			session.clear(); // this clears up all pending DB updates, in this
-								// case
-			// it is ok, we need this to avoid duplicate object
-			// in same session error
-			// json and testComponent have the same ID
-			session.update(json);
+			throw new InternalErrorException(6565189333l, "Cannot find component type", "");
 		}
-		return json;
+		session.update(c);
+		return c;
 	}
 
 }

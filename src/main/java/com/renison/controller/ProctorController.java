@@ -99,7 +99,19 @@ public class ProctorController {
 		if (questionResponse == null) {
 			questionResponse = new QuestionResponse(testSession, question);
 		}
-		questionResponse.setResponseContents(responseContents);
+		if (responseContents.size() > 1) {
+			throw new ProctorException(5236622212l, "Does not support more than one answer",
+					"Only one answer is allowed");
+		}
+		for (ResponseContent rc : responseContents) {
+			rc.setQuestionResponse(questionResponse);
+		}
+		for (ResponseContent oldRc : questionResponse.getResponseContents()) {
+			session.delete(oldRc);// must do this to delete a set of objects
+									// from hibernate
+		}
+		questionResponse.getResponseContents().clear();
+		questionResponse.getResponseContents().addAll(responseContents);
 		session.saveOrUpdate(questionResponse);
 		return responseContents;
 	}

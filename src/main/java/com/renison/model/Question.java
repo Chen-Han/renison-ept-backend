@@ -36,7 +36,7 @@ import com.renison.jackson.View;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Question extends TestComponent {
 
-	@Column(name = "content")
+	@Column(name = "content", columnDefinition = "TEXT")
 	@JsonView(View.Public.class)
 	private String content;
 
@@ -56,7 +56,7 @@ public abstract class Question extends TestComponent {
 	@Cascade({ CascadeType.PERSIST, CascadeType.SAVE_UPDATE, CascadeType.DELETE, CascadeType.DETACH })
 	private List<Answer> answers = new ArrayList<Answer>();
 
-	@OneToMany(mappedBy = "question")
+	@OneToMany(mappedBy = "question", orphanRemoval = true)
 	@JsonBackReference("questionResponses")
 	private Set<QuestionResponse> questionResponses;
 

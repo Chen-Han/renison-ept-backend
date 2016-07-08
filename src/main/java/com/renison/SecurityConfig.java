@@ -70,6 +70,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				antMatchers(HttpMethod.GET, "/testComponents/**").hasRole("ADMIN").//
 				antMatchers(HttpMethod.PUT, "/testComponents/**").hasRole("ADMIN").//
 				antMatchers(HttpMethod.POST, "/testComponents/**").hasRole("ADMIN").//
-				antMatchers(HttpMethod.DELETE, "/testComponents/**").hasRole("ADMIN");
+				antMatchers(HttpMethod.DELETE, "/testComponents/**").hasRole("ADMIN").and().csrf().disable();
 	}
 }
