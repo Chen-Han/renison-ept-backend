@@ -38,6 +38,7 @@ public class TestSession extends BaseModel {
 
 	@OneToMany(mappedBy = "testSession")
 	@JsonView(View.Public.class)
+	@Cascade({ CascadeType.ALL })
 	private Set<QuestionResponse> questionResponses = new HashSet<QuestionResponse>();
 
 	@OneToOne

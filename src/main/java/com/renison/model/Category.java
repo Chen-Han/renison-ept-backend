@@ -61,10 +61,14 @@ public class Category extends BaseModel {
 
 	@OneToMany(mappedBy = "category")
 	@JsonBackReference("progresses")
+	@Cascade({ CascadeType.DELETE })
 	private List<Progress> progresses;
 
 	@OneToMany(mappedBy = "category")
+	// should not have orphan removal, see
+	// http://stackoverflow.com/questions/5587482/hibernate-a-collection-with-cascade-all-delete-orphan-was-no-longer-referenc
 	@JsonIgnore
+	@Cascade({ CascadeType.DELETE })
 	private Set<CategoryScore> categoryScores = new HashSet<>();
 
 	public int getOrdering() {

@@ -8,6 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Cascade;
@@ -19,7 +20,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.View;
 
 @Entity
-@Table(name = "question_response")
+@Table(name = "question_response", uniqueConstraints = @UniqueConstraint(columnNames = { "test_session_id",
+		"question_id" }))
 // A response to a question can have many response content,
 // since a question might contain multiple sub parts ( i.e. matching question)
 public class QuestionResponse extends BaseModel {
