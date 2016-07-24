@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.Session;
 import org.hibernate.annotations.Cascade;
@@ -27,7 +28,7 @@ import com.renison.jackson.View;
 import com.renison.jackson.View.Admin;
 
 @Entity
-@Table(name = "test_session")
+@Table(name = "test_session", uniqueConstraints = @UniqueConstraint(columnNames = { "test_id", "student_id" }))
 public class TestSession extends BaseModel {
 
 	@OneToMany(mappedBy = "testSession")

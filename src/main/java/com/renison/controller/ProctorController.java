@@ -182,6 +182,9 @@ public class ProctorController {
 				}
 			}
 		});
+		List<String> categoryNames = category.getTest().getCategories().stream().map(Category::getName)
+				.collect(Collectors.toList());
+		category.setAllCategories(categoryNames);
 		return category;
 	}
 

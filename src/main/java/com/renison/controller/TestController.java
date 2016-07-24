@@ -1,6 +1,7 @@
 package com.renison.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -132,6 +133,32 @@ public class TestController extends BaseController<Test> {
 			result.add(row);
 		}
 		return result;
+	}
+
+	@JsonView(Admin.class)
+	// Sync the order of categories from client to server
+	// accept an array like this:
+	// [{
+	// categoryId: 1236,
+	// ordering: 9
+	// }, ...]
+	@CrossOrigin(origins = "*", methods = RequestMethod.PUT)
+	@RequestMapping(value = "/categoryOrder", method = RequestMethod.PUT)
+	public @ResponseBody List<Map<String, Long>> syncComponentOrder(@RequestBody List<Map<String, Long>> orders) {
+		for (Map<String, Long> order : orders) {
+			Long categoryId = order.get("categoryId");
+			Long ordering = order.get("ordering");
+			if (categoryId == null || ordering == null) {
+				throw new BadRequestException(82623552l, "ordering or testComponentId invalid", "");
+			}
+			Session session = sessionFactory.getCurrentSession();
+			int isSuccess = session.createQuery("UPDATE Category SET ordering = ? WHERE id = ?").setLong(0, ordering)
+					.setLong(1, categoryId).executeUpdate();
+			if (isSuccess == 0) {
+				throw new InternalErrorException(123985743l, "Query failed", "");
+			}
+		}
+		return orders;
 	}
 
 	@JsonView(Admin.class)

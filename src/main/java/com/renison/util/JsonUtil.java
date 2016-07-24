@@ -1,6 +1,7 @@
 package com.renison.util;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -43,11 +44,20 @@ public class JsonUtil {
 		return copy;
 	}
 
-	public static ObjectNode parsePOJO(Object object, Class<?> jsonViewType) {
+	// note that we find mapper serialization does not comply to view
+	public static ObjectNode serializePOJO(Object object, Class<?> jsonViewType) {
 		SerializationConfig original = mapper.getSerializationConfig();
 		mapper.setConfig(original.withView(jsonViewType));
 		ObjectNode objectNode = mapper.valueToTree(object);
 		mapper.setConfig(original);
 		return objectNode;
+	}
+
+	public static <T extends Object> ArrayNode serializeToArray(Collection<T> objs, Class<?> jsonViewType) {
+		SerializationConfig original = mapper.getSerializationConfig();
+		mapper.setConfig(original.withView(jsonViewType));
+		ArrayNode arrayNode = mapper.valueToTree(objs);
+		mapper.setConfig(original);
+		return arrayNode;
 	}
 }

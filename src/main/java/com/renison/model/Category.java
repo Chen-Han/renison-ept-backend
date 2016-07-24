@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Cascade;
@@ -69,7 +70,11 @@ public class Category extends BaseModel {
 	// http://stackoverflow.com/questions/5587482/hibernate-a-collection-with-cascade-all-delete-orphan-was-no-longer-referenc
 	@JsonIgnore
 	@Cascade({ CascadeType.DELETE })
-	private Set<CategoryScore> categoryScores = new HashSet<>();
+	private Set<CategoryScore> categoryScores = new HashSet<>(); // in the test
+
+	@Transient
+	@JsonView(View.Student.class)
+	private List<String> allCategories = new ArrayList<>();
 
 	public int getOrdering() {
 		return ordering;
@@ -136,6 +141,14 @@ public class Category extends BaseModel {
 		this.categoryScores = categoryScores;
 	}
 
+	public List<String> getAllCategories() {
+		return allCategories;
+	}
+
+	public void setAllCategories(List<String> allCategories) {
+		this.allCategories = allCategories;
+	}
+
 	@JsonView(Admin.class)
 	// count the # of questions in the category
 	public int getTotalScore() {
@@ -153,4 +166,5 @@ public class Category extends BaseModel {
 			t.detach();
 		}
 	}
+
 }

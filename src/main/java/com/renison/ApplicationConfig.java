@@ -97,6 +97,8 @@ public class ApplicationConfig {
 				// Registering Hibernate4Module to support lazy objects
 				Hibernate4Module hibernate4Module = new Hibernate4Module();
 				hibernate4Module.enable(Hibernate4Module.Feature.FORCE_LAZY_LOADING);
+				// supports transient field being serialized
+				hibernate4Module.disable(Hibernate4Module.Feature.USE_TRANSIENT_ANNOTATION);
 				mapper.registerModule(hibernate4Module);
 				mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
 				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
