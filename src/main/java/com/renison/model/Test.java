@@ -123,6 +123,15 @@ public class Test extends BaseModel {
 		this.comment = comment;
 	}
 
+	@JsonIgnore
+	public int getTotalScore() {
+		int totalScore = 0;
+		for (Category category : this.getCategories()) {
+			totalScore += category.getTotalScore();
+		}
+		return totalScore;
+	}
+
 	@Override
 	public void detach() {
 		super.detach();

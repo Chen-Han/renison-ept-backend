@@ -10,6 +10,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.renison.jackson.View;
@@ -123,6 +124,11 @@ public class Student extends BaseModel {
 
 	public void setTestSession(TestSession testSession) {
 		this.testSession = testSession;
+	}
+
+	@JsonIgnore
+	public String getFullName() {
+		return getFirstName() + " " + getLastName();
 	}
 
 	public ObjectNode toReportFormat() {

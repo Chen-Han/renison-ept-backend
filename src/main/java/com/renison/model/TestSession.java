@@ -180,4 +180,12 @@ public class TestSession extends BaseModel {
 		this.categoryScores = categoryScores;
 	}
 
+	// gets the student's score for the test
+	public int getScore() {
+		int score = 0;
+		for (CategoryScore categoryScore : getCategoryScores()) {
+			score += categoryScore.getScore().intValue();
+		}
+		return score;
+	}
 }

@@ -1,9 +1,11 @@
 package com.renison.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
@@ -136,6 +138,14 @@ public class TestController extends BaseController<Test> {
 	}
 
 	@JsonView(Admin.class)
+	@RequestMapping(value = "/report", method = RequestMethod.GET)
+	// this is a hack to resolve a weird frontend issue
+	// angular does not like passing testId in the url
+	public @ResponseBody ArrayNode generateReport2(@RequestParam("id") Long id) {
+		return generateReport(id);
+	}
+
+	@JsonView(Admin.class)
 	// Sync the order of categories from client to server
 	// accept an array like this:
 	// [{
@@ -162,11 +172,21 @@ public class TestController extends BaseController<Test> {
 	}
 
 	@JsonView(Admin.class)
-	@RequestMapping(value = "/report", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/scoredSessions", method = RequestMethod.GET)
 	// this is a hack to resolve a weird frontend issue
 	// angular does not like passing testId in the url
-	public @ResponseBody ArrayNode generateReport2(@RequestParam("id") Long id) {
-		return generateReport(id);
+	public @ResponseBody Set<Map<String, Object>> getScoredSessions(@PathVariable("id") Long id) {
+		Test test = get(id);
+		int totalScore = test.getTotalScore();
+		return test.getTestSessions().stream().filter((t) -> !t.getCategoryScores().isEmpty()).map((t) -> {
+			Map<String, Object> map = new HashMap<>();
+			com.renison.model.Student student = t.getStudent();
+			map.put("name", student.getFirstName() + " " + student.getLastName());
+			map.put("id", t.getId());
+			map.put("score", t.getScore());
+			map.put("totalScore", totalScore);
+			return map;
+		}).collect(Collectors.toSet());
 	}
 
 	protected Class<Test> getResourceType() {

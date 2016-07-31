@@ -164,8 +164,8 @@ public class ProctorController {
 		}
 	}
 
-	private Category withMetaInfo(Category category, TestSession testSession) {
-		Session session = sessionFactory.getCurrentSession();
+	// adds student's response to each question
+	public void addStudentResponse(Category category, TestSession testSession, Session session) {
 		List<QuestionResponse> questionResponses = session.createCriteria(QuestionResponse.class)
 				.add(Restrictions.eq("testSession", testSession)).list();
 		Set<Question> questions = questionResponses.stream().map((qs) -> {
@@ -182,6 +182,13 @@ public class ProctorController {
 				}
 			}
 		});
+	}
+
+	// adds additional info such as student's response for each question
+	// and a list of categories in the test
+	public Category withMetaInfo(Category category, TestSession testSession) {
+		Session session = sessionFactory.getCurrentSession();
+		addStudentResponse(category, testSession, session);
 		List<String> categoryNames = category.getTest().getCategories().stream().map(Category::getName)
 				.collect(Collectors.toList());
 		category.setAllCategories(categoryNames);
