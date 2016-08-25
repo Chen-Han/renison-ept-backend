@@ -43,11 +43,6 @@ public abstract class Question extends TestComponent {
 	@Transient
 	public static final boolean scorable = false; // whether question can be
 													// scored
-
-	@Column(name = "ordering")
-	@JsonView(View.Public.class)
-	private int ordering;
-
 	@OneToMany(fetch = FetchType.EAGER, orphanRemoval = true)
 	@JsonView(View.Public.class)
 	@JoinTable(name = "question_answer", joinColumns = {
@@ -102,14 +97,6 @@ public abstract class Question extends TestComponent {
 
 	public void setContent(String content) {
 		this.content = content;
-	}
-
-	public int getOrdering() {
-		return ordering;
-	}
-
-	public void setOrdering(int ordering) {
-		this.ordering = ordering;
 	}
 
 	public Set<QuestionResponse> getQuestionResponses() {

@@ -27,6 +27,7 @@ import com.renison.exception.BadRequestException;
 import com.renison.exception.InternalErrorException;
 import com.renison.exception.NotFoundException;
 import com.renison.jackson.View.Admin;
+import com.renison.jackson.View.AdminSummary;
 import com.renison.model.Category;
 import com.renison.model.CategoryScore;
 import com.renison.model.Test;
@@ -63,13 +64,13 @@ public class TestController extends BaseController<Test> {
 		return test;
 	}
 
-	@JsonView(Admin.class)
+	@JsonView(AdminSummary.class)
 	@RequestMapping(value = "/{testId}/categories", method = RequestMethod.GET)
 	public List<Category> getCategories(@PathVariable Long testId) {
 		return this.get(testId).getCategories();
 	}
 
-	@JsonView(Admin.class)
+	@JsonView(AdminSummary.class)
 	@RequestMapping(value = "/{testId}/categories", method = RequestMethod.POST)
 	public @ResponseBody Category createCategory(@PathVariable Long testId, @RequestBody Category category) {
 		Test test = this.get(testId);
@@ -185,6 +186,21 @@ public class TestController extends BaseController<Test> {
 			map.put("id", t.getId());
 			map.put("score", t.getScore());
 			map.put("totalScore", totalScore);
+			return map;
+		}).collect(Collectors.toSet());
+	}
+
+	@JsonView(Admin.class)
+	@RequestMapping(value = "/sessions", method = RequestMethod.GET)
+	// this is a hack to resolve a weird frontend issue
+	// angular does not like passing testId in the url
+	public @ResponseBody Set<Map<String, Object>> getSessions(@RequestParam("id") Long id) {
+		Test test = get(id);
+		return test.getTestSessions().stream().map((t) -> {
+			Map<String, Object> map = new HashMap<>();
+			com.renison.model.Student student = t.getStudent();
+			map.put("name", student.getFullName());
+			map.put("id", t.getId());
 			return map;
 		}).collect(Collectors.toSet());
 	}

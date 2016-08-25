@@ -21,8 +21,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.google.common.collect.Maps;
 import com.renison.exception.NotFoundException;
+import com.renison.jackson.View;
 import com.renison.model.BaseModel;
 
 @RequestMapping(consumes = { MediaType.APPLICATION_JSON_VALUE })
@@ -51,6 +53,7 @@ public abstract class BaseController<T extends BaseModel> {
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	@JsonView(View.Public.class)
 	public @ResponseBody T get(@PathVariable Long id) {
 		T entity = sessionFactory.getCurrentSession().get(getResourceType(), id);
 		if (entity == null) {

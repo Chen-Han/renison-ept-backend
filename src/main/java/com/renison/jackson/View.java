@@ -5,6 +5,10 @@ public class View {
 
 	}
 
+	public static interface AdminSummary extends Public {
+
+	}
+
 	public static interface Admin extends Student { // admin has access to see
 													// what students can see
 	}
