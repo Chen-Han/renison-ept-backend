@@ -27,9 +27,10 @@ public class Test extends BaseModel {
 	@NotNull
 	private String name;
 
-	@Column(name = "description")
+	@Column(name = "description", columnDefinition = "text")
 	@JsonView(View.Public.class)
 	private String description;
+
 	@Column(name = "comment")
 	@JsonView(View.Admin.class)
 	private String comment;
