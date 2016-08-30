@@ -25,8 +25,9 @@ import com.renison.jackson.View;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "component_type", discriminatorType = DiscriminatorType.STRING)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "componentType")
-@JsonSubTypes({ @Type(value = HtmlComponent.class), @Type(value = MultipleChoice.class), @Type(value = FreeText.class),
-		@Type(value = TrueFalse.class), @Type(value = ShortAnswer.class), })
+@JsonSubTypes({ @Type(value = HtmlComponent.class), @Type(value = VideoComponent.class),
+		@Type(value = MultipleChoice.class), @Type(value = FreeText.class), @Type(value = TrueFalse.class),
+		@Type(value = ShortAnswer.class), })
 public abstract class TestComponent extends BaseModel {
 
 	@Column(name = "component_type", updatable = false, insertable = false) // without

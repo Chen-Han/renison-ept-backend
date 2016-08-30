@@ -31,6 +31,7 @@ if '%errorlevel%' NEQ '0' (
 :    <YOUR BATCH SCRIPT HERE>
 netsh int ip set address "wireless network connection" static 10.10.10.50 255.255.255.0
 :--- run in background for the next 3 commands
-cd /d C:\Users\RIO\Desktop & start /b cmd /c java -jar renison-ept-1.0-SNAPSHOT.jar --spring.config.location=application.local-mysql.properties --spring.application.json='{"dispatchOptionsRequest":true}'
-cd /d C:\Users\RIO\Desktop\admin-dist & start /b cmd /c python -m SimpleHTTPServer 8081
-cd /d C:\Users\RIO\Desktop\student-dist & start /b cmd /c python -m SimpleHTTPServer 8888
+SET outputDir=%HOMEPATH%\ept-dist
+cd /d %outputDir% & start /b cmd /c java -jar renison-ept-1.0-SNAPSHOT.jar --spring.config.location=application.local-mysql.properties --spring.application.json='{"dispatchOptionsRequest":true}'
+cd /d %outputDir%\admin-dist & start /b cmd /c python -m SimpleHTTPServer 8081
+cd /d %outputDir%\student-dist & start /b cmd /c python -m SimpleHTTPServer 8888

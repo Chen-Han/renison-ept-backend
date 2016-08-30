@@ -21,6 +21,8 @@ import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate5.support.OpenSessionInViewFilter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -84,11 +86,18 @@ public class ApplicationConfig {
 			}
 
 			// attempt to serve static content along with rest API
-			// @Override
-			// public void addResourceHandlers(ResourceHandlerRegistry registry)
-			// {
-			// registry.addResourceHandler("/public/**").addResourceLocations("/public/");
-			// }
+			@Override
+			public void addResourceHandlers(ResourceHandlerRegistry registry) {
+				registry.addResourceHandler("/public/**").addResourceLocations("classpath:/public");
+			}
+
+			// see
+			// http://stackoverflow.com/questions/24661289/spring-boot-not-serving-static-content
+			@Override
+			public void configurePathMatch(PathMatchConfigurer configurer) {
+				super.configurePathMatch(configurer);
+				configurer.setUseSuffixPatternMatch(false);
+			}
 
 			public MappingJackson2HttpMessageConverter jacksonMessageConverter() {
 				MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter();
@@ -123,6 +132,7 @@ public class ApplicationConfig {
 		FilterConfig filterConfig = openSessionInViewFilter.getFilterConfig();
 		return openSessionInViewFilter;
 	}
+
 	// trying to resolve accepting "OPTIONS" request
 	// @Bean
 	// public DispatcherServletBeanPostProcessor
