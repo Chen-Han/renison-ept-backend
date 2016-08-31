@@ -7,6 +7,7 @@ mvn clean package
 cp target/renison-ept-1.0-SNAPSHOT.jar $outputDir
 cp -r src/main/resources/scripts/windows ${outputDir}/windows
 cp -r src/main/resources/scripts/mac ${outputDir}/mac
+cp -r src/main/resources/scripts/linux ${outputDir}/linux
 cp "src/main/resources/application.local-mysql.properties" ${outputDir}
 cp src/main/resources/db/backup/* $outputDir #sql files
 

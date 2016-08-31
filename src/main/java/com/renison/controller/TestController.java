@@ -88,18 +88,12 @@ public class TestController extends BaseController<Test> {
 		Test test = this.get(testId);
 		Session session = sessionFactory.getCurrentSession();
 		if (isStart) {// deactivate all other test when starting a specific one
-			int result = session.createSQLQuery("UPDATE test set active = false;").executeUpdate();
-			if (result == 0) {
-				throw new InternalErrorException(55894320l, "cannot execute query", "");
-			}
+			session.createSQLQuery("UPDATE test set active = false;").executeUpdate();
 		} else {
 			// when stopping a test, make sure all active test sessions are
 			// terminated
-			int result = session.createSQLQuery("UPDATE test_session SET test_submitted = TRUE where test_id = ?")
+			session.createSQLQuery("UPDATE test_session SET test_submitted = TRUE where test_id = ?")
 					.setLong(0, test.getId()).executeUpdate();
-			if (result == 0) {
-				throw new InternalErrorException(55856320l, "cannot execute query", "");
-			}
 		}
 		test.setActive(isStart);
 		session.save(test);
