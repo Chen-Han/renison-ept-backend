@@ -53,6 +53,9 @@ public class TestComponentController extends BaseController<TestComponent> {
 	public @ResponseBody ObjectNode uploadFile(@RequestParam("videoFile") MultipartFile file) {
 		String fileName;
 		if (!file.isEmpty()) {
+			if (!file.getOriginalFilename().endsWith(".mp4")) {
+				throw new BadRequestException(1236810l, "Does not support mp4", "Please upload only mp4 file");
+			}
 			try {
 				fileName = (System.currentTimeMillis() + "-" + file.getOriginalFilename());
 				Path storingPath = Paths.get(ROOT, fileName);

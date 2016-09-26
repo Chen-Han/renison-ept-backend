@@ -47,9 +47,23 @@ public class Student extends BaseModel {
 	@Column(name = "university")
 	@JsonView({ View.Public.class })
 	private String university;
+
 	@Column(name = "currentMajor")
 	@JsonView({ View.Public.class })
 	private String currentMajor;
+
+	@Column(name = "gao_kao_eng_score")
+	@JsonView({ View.Public.class })
+	private Integer gaoKaoEngScore;
+
+	@Column(name = "gao_kao_eng_max_score")
+	@JsonView({ View.Public.class })
+	private Integer gaoKaoEngMaxScore;
+
+	@Column(name = "gao_kao_prov_max_score")
+	@JsonView({ View.Public.class })
+	private Integer gaoKaoProvMaxScore;
+
 	@OneToOne(mappedBy = "student")
 	@JsonBackReference
 	private TestSession testSession;
@@ -116,6 +130,30 @@ public class Student extends BaseModel {
 
 	public void setCurrentMajor(String currentMajor) {
 		this.currentMajor = currentMajor;
+	}
+
+	public Integer getGaoKaoEngScore() {
+		return gaoKaoEngScore;
+	}
+
+	public void setGaoKaoEngScore(Integer gaoKaoEngScore) {
+		this.gaoKaoEngScore = gaoKaoEngScore;
+	}
+
+	public Integer getGaoKaoEngMaxScore() {
+		return gaoKaoEngMaxScore;
+	}
+
+	public void setGaoKaoEngMaxScore(Integer gaoKaoEngMaxScore) {
+		this.gaoKaoEngMaxScore = gaoKaoEngMaxScore;
+	}
+
+	public Integer getGaoKaoProvMaxScore() {
+		return gaoKaoProvMaxScore;
+	}
+
+	public void setGaoKaoProvMaxScore(Integer gaoKaoProvMaxScore) {
+		this.gaoKaoProvMaxScore = gaoKaoProvMaxScore;
 	}
 
 	public TestSession getTestSession() {

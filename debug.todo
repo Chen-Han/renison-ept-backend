@@ -139,3 +139,7 @@ argument: --spring.application.json='{"dispatchOptionsRequest":true}'
 
 
  ☐ resolve deployment error, or error connecting to remote database; http://stackoverflow.com/questions/26548505/org-hibernate-hibernateexception-access-to-dialectresolutioninfo-cannot-be-null
+ 
+ Troubleshoot: bad file to be processed
+ we must have a pulic/ folder in the root directory from which project is run. in eclipse, there must be a public folder in project root. When run as jar file, there should be a public folder in the same directory as the .jar
+ 

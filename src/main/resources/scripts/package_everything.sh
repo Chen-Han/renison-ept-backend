@@ -19,3 +19,5 @@ cd ~/frontend-student
 rm -rf dist/*
 npm run build-prod
 cp -r dist ${outputDir}/student-dist
+ept_to_usb
+if [ ! $? ]; then echo "CAREFUL!!! did not copy to usb"; exit 1; fi
