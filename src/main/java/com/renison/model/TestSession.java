@@ -33,7 +33,7 @@ public class TestSession extends BaseModel {
 
 	@OneToMany(mappedBy = "testSession")
 	@JsonView(View.Public.class)
-	@OrderBy("startAt DESC")
+	@OrderBy("id DESC")
 	@Cascade({ CascadeType.ALL })
 	private List<Progress> progresses = new ArrayList<Progress>();
 
@@ -139,6 +139,8 @@ public class TestSession extends BaseModel {
 		// null).findAny().get();
 		if (getProgresses().isEmpty())
 			return null;
+		// note that progresses are sorted by startAt DESC
+		// so that the first item is the latest progress
 		return getProgresses().iterator().next();
 	}
 
@@ -148,6 +150,7 @@ public class TestSession extends BaseModel {
 	}
 
 	@JsonIgnore
+	// returns time left for current category in seconds
 	public long getTimeLeftForCurrentProgress() {
 		return getLatestProgress().getTimeLeftInSeconds();
 	}
@@ -170,6 +173,10 @@ public class TestSession extends BaseModel {
 
 	public void markAsSubmitted() {
 		testSubmitted = true;
+	}
+
+	public void markAsUnsubmitted() {
+		testSubmitted = false;
 	}
 
 	public Set<CategoryScore> getCategoryScores() {

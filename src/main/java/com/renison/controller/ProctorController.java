@@ -1,7 +1,9 @@
 package com.renison.controller;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -75,7 +77,7 @@ public class ProctorController {
 		if (!testSession.isTestStarted()) {
 			throw new ProctorException(6399985223l, "Test has not started", "");
 		}
-		return testSession.getLatestProgress().getTimeLeftInSeconds();
+		return testSession.getTimeLeftForCurrentProgress();
 	}
 
 	@RequestMapping(value = "/question/{questionId}", method = RequestMethod.POST)
@@ -114,6 +116,23 @@ public class ProctorController {
 		questionResponse.getResponseContents().addAll(responseContents);
 		session.saveOrUpdate(questionResponse);
 		return responseContents;
+	}
+
+	@RequestMapping(value = "/statusReporter", method = RequestMethod.POST)
+	@Transactional
+	public @ResponseBody Map<String, Object> handleStatusReport(@RequestBody Map<String, Long> studentStatusReport,
+			@RequestHeader("ept-login-token") String eptLoginToken) {
+		TestSession testSession = verifyLoginSession(eptLoginToken);
+		Long categoryId = studentStatusReport.get("categoryId");
+		Long timeRemaining = studentStatusReport.get("timeRemaining");
+		Category ongoingCategory = testSession.getLatestCategory();
+		Long timeRemainingServer = testSession.getTimeLeftForCurrentProgress();
+		boolean categoryUpdated = !ongoingCategory.getId().equals(categoryId);
+
+		boolean timeUpdated = Math.abs(timeRemaining - timeRemainingServer) > 30;
+		Map<String, Object> reportResponse = new HashMap<>();
+		reportResponse.put("refreshNeeded", timeUpdated || categoryUpdated);
+		return reportResponse;
 	}
 
 	@Transactional

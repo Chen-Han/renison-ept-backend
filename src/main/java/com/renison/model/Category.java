@@ -54,7 +54,7 @@ public class Category extends BaseModel {
 
 	@Column(name = "timeAllowed")
 	@JsonView(View.Public.class)
-	private double timeAllowed;
+	private double timeAllowed; // TODO change this to BigDecimal
 
 	@Column(name = "ordering")
 	@JsonView(View.Public.class)
@@ -110,7 +110,7 @@ public class Category extends BaseModel {
 	}
 
 	public long getTimeAllowedInSeconds() {
-		return ((long) timeAllowed) * 60;
+		return Math.round((timeAllowed * 60.0));
 	}
 
 	public void setTimeAllowed(double timeAllowed) {

@@ -13,6 +13,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
+import org.apache.log4j.Logger;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.renison.jackson.View;
@@ -20,6 +22,7 @@ import com.renison.jackson.View;
 @Entity
 @Table(name = "progress")
 public class Progress extends BaseModel {
+	private static Logger logger = Logger.getLogger(Progress.class);
 	@ManyToOne
 	@JsonView(View.Public.class)
 	@JoinColumn(name = "category_id", nullable = false)
@@ -83,16 +86,20 @@ public class Progress extends BaseModel {
 		return new Date(startAt + timeAllowed);
 	}
 
+	public boolean hasEnded() {
+		return this.getEndAt() != null;
+	}
+
 	@JsonIgnore
 	public long getTimeLeftInSeconds() {
 		if (this.getEndAt() != null) {
-			throw new IllegalStateException("Progress already ended, cannot get time left");
+			return 0l;
 		}
-		long startAt = this.getStartAt().getTime() / 1000;
-		long now = new Date().getTime() / 1000;
-		long timePassed = (now - startAt);
+		long startAt = this.getStartAt().getTime();
+		long now = System.currentTimeMillis();
+		long timePassedInSeconds = (now - startAt) / 1000;
 		long timeAllowed = (long) this.getCategory().getTimeAllowedInSeconds();
-		return Math.max(0, timeAllowed - timePassed);
+		return Math.max(0, timeAllowed - timePassedInSeconds);
 	}
 
 	public TestSession getTestSession() {

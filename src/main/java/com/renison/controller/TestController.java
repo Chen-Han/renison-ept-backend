@@ -1,5 +1,6 @@
 package com.renison.controller;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.http.HttpStatus;
@@ -38,6 +40,7 @@ import com.renison.util.JsonUtil;
 @RequestMapping("/tests")
 @CrossOrigin("*")
 public class TestController extends BaseController<Test> {
+	private static Logger logger = Logger.getLogger(TestController.class);
 
 	public TestController() {
 		super();
@@ -88,11 +91,14 @@ public class TestController extends BaseController<Test> {
 		Test test = this.get(testId);
 		Session session = sessionFactory.getCurrentSession();
 		if (isStart) {// deactivate all other test when starting a specific one
-			session.createSQLQuery("UPDATE test set active = false;").executeUpdate();
+			session.createSQLQuery("UPDATE test 	set active = false;").executeUpdate();
 		} else {
 			// when stopping a test, make sure all active test sessions are
 			// terminated
-			session.createSQLQuery("UPDATE test_session SET test_submitted = TRUE where test_id = ?")
+			session.createSQLQuery("UPDATE progress p SET p.end_at = ? WHERE p.end_at is NULL AND p.category_id IN "
+					+ "(SELECT id FROM category c WHERE c.test_id = ?);").setDate(0, new Date())
+					.setLong(1, test.getId()).executeUpdate();
+			session.createSQLQuery("UPDATE test_session SET test_submitted = TRUE WHERE test_id = ?")
 					.setLong(0, test.getId()).executeUpdate();
 		}
 		test.setActive(isStart);
@@ -106,7 +112,8 @@ public class TestController extends BaseController<Test> {
 	public void scoreTest(@PathVariable Long testId) {
 		Test test = get(testId);
 		Session session = sessionFactory.getCurrentSession();
-		Set<TestSession> testSessions = test.getTestSessions();
+		Set<TestSession> testSessions = test.getTestSessions().stream().filter((t) -> t.isTestSubmitted())
+				.collect(Collectors.toSet());
 		for (TestSession testSession : testSessions) { // for each testsession
 			testSession.scoreTest(session);
 			session.save(testSession);
@@ -176,8 +183,9 @@ public class TestController extends BaseController<Test> {
 
 	@JsonView(Admin.class)
 	@RequestMapping(value = "/{id}/scoredSessions", method = RequestMethod.GET)
-	// this is a hack to resolve a weird frontend issue
+	// TODO this is not a good way to resolve a weird frontend issue
 	// angular does not like passing testId in the url
+	// Han Oct 5, 2016: is this solved??
 	public @ResponseBody Set<Map<String, Object>> getScoredSessions(@PathVariable("id") Long id) {
 		Test test = get(id);
 		int totalScore = test.getTotalScore();
@@ -190,6 +198,52 @@ public class TestController extends BaseController<Test> {
 			map.put("totalScore", totalScore);
 			return map;
 		}).collect(Collectors.toSet());
+	}
+
+	@JsonView(Admin.class)
+	@RequestMapping(value = "/{id}/studentStatus", method = RequestMethod.GET)
+	public @ResponseBody Set<Map<String, Object>> getStudentStatus(@PathVariable("id") Long id) {
+		Test test = get(id);
+		// TODO make sure we pass categoryId, timeRemaining, testSessionId name,
+		// studentId, testSubmitted flag, and also categoryIds and timeAllowed
+		// to frontend
+		Set<TestSession> activeSessions = test.getTestSessions().stream().filter((t) -> t.getCategoryScores().isEmpty())
+				.collect(Collectors.toSet());
+		Set<Map<String, Object>> studentProgressInfo = activeSessions.stream().map((s) -> {
+			Map<String, Object> activeSessionInfo = new HashMap<>();
+			if (s.getLatestProgress() == null) {
+				return null;
+			}
+			activeSessionInfo.put("testSessionId", s.getId());
+			activeSessionInfo.put("categoryId", s.getLatestCategory().getId());
+			// note that timeRemaining is in seconds, but
+			activeSessionInfo.put("timeRemaining", s.getTimeLeftForCurrentProgress());
+			Long elapsedTimeAfterEnd = null;
+			if (s.isTestSubmitted()) {
+				if (s.getLatestProgress() == null) {
+					logger.warn(String.format(
+							"Cannot find latest progress for testSession %s, even though testSubmitted is true",
+							s.getId()));
+					elapsedTimeAfterEnd = 0l;
+				} else if (s.getLatestProgress().getEndAt() == null) {
+					logger.warn(String.format(
+							"The latest progress has no endAt, for testSession %s, even though testSubmitted is true",
+							s.getId()));
+					elapsedTimeAfterEnd = 0l;
+				} else {
+					Date testEndedAt = s.getLatestProgress().getEndAt();
+					elapsedTimeAfterEnd = (System.currentTimeMillis() - testEndedAt.getTime()) / 1000;
+				}
+			}
+			activeSessionInfo.put("testSubmitted", s.isTestSubmitted());
+			// the number of seconds after test ended, if
+			// test still active, it is null
+			activeSessionInfo.put("elapsedTimeAfterEnd", elapsedTimeAfterEnd);
+			activeSessionInfo.put("name", s.getStudent().getFullName());
+			activeSessionInfo.put("studentId", s.getStudent().getStudentId());
+			return activeSessionInfo;
+		}).filter((item) -> item != null).collect(Collectors.toSet());
+		return studentProgressInfo;
 	}
 
 	// return a list of sessions currently active
